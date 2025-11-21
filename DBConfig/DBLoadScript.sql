@@ -63,13 +63,11 @@ IF OBJECT_ID('dbo.Accounts','U') IS NOT NULL DROP TABLE dbo.Accounts;
 GO
 CREATE TABLE dbo.Accounts
 (
-    AccountId  UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Accounts PRIMARY KEY,
+    IBAN       NVARCHAR(34) NOT NULL CONSTRAINT PK_Accounts PRIMARY KEY,
     CustomerId UNIQUEIDENTIFIER NOT NULL,
-    IBAN       NVARCHAR(34)     NOT NULL,
     CreatedAt  DATETIME2(3)     NOT NULL CONSTRAINT DF_Accounts_CreatedAt DEFAULT SYSUTCDATETIME(),
     Currency   CHAR(3)          NOT NULL,
 
-    CONSTRAINT UQ_Accounts_IBAN UNIQUE (IBAN),
     CONSTRAINT FK_Accounts_Customers
         FOREIGN KEY (CustomerId) REFERENCES dbo.Customers(CustomerId)
         ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -85,8 +83,8 @@ GO
 CREATE TABLE dbo.Transfers
 (
     TransferId     UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Transfers PRIMARY KEY,
-    FromAccountId  UNIQUEIDENTIFIER NOT NULL,
-    ToAccountId    UNIQUEIDENTIFIER NOT NULL,
+    FromAccountId  NVARCHAR(34)     NOT NULL,
+    ToAccountId    NVARCHAR(34)     NOT NULL,
     ReviewedBy     UNIQUEIDENTIFIER NULL,
     CreatedAt      DATETIME2(3)     NOT NULL CONSTRAINT DF_Transfers_CreatedAt DEFAULT SYSUTCDATETIME(),
     Status         VARCHAR(30)      NOT NULL,   -- Pending, Completed, Rejected, UnderReview
@@ -102,10 +100,10 @@ CREATE TABLE dbo.Transfers
         CHECK (FromAccountId <> ToAccountId),
 
     CONSTRAINT FK_Transfers_FromAccount
-        FOREIGN KEY (FromAccountId) REFERENCES dbo.Accounts(AccountId)
+        FOREIGN KEY (FromAccountId) REFERENCES dbo.Accounts(IBAN)
         ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT FK_Transfers_ToAccount
-        FOREIGN KEY (ToAccountId)   REFERENCES dbo.Accounts(AccountId)
+        FOREIGN KEY (ToAccountId)   REFERENCES dbo.Accounts(IBAN)
         ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT FK_Transfers_ReviewedBy
         FOREIGN KEY (ReviewedBy)    REFERENCES dbo.Employees(EmployeeId)
