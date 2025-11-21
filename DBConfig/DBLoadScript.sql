@@ -23,10 +23,8 @@ SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
 GO
 
-
 -- Customers --
-IF OBJECT_ID('dbo.Customers','U') IS NOT NULL DROP TABLE dbo.Customers;
-GO
+IF OBJECT_ID('dbo.Customers','U') IS NULL
 CREATE TABLE dbo.Customers
 (
     CustomerId     UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Customers PRIMARY KEY,
@@ -41,8 +39,7 @@ GO
 
 
 -- Employees --
-IF OBJECT_ID('dbo.Employees','U') IS NOT NULL DROP TABLE dbo.Employees;
-GO
+IF OBJECT_ID('dbo.Employees','U') IS NULL
 CREATE TABLE dbo.Employees
 (
     EmployeeId    UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Employee PRIMARY KEY,
@@ -59,81 +56,80 @@ GO
 
 
 -- Accounts --
-IF OBJECT_ID('dbo.Accounts','U') IS NOT NULL DROP TABLE dbo.Accounts;
-GO
-CREATE TABLE dbo.Accounts
-(
-    IBAN       NVARCHAR(34) NOT NULL CONSTRAINT PK_Accounts PRIMARY KEY,
-    CustomerId UNIQUEIDENTIFIER NOT NULL,
-    CreatedAt  DATETIME2(3)     NOT NULL CONSTRAINT DF_Accounts_CreatedAt DEFAULT SYSUTCDATETIME(),
-    Currency   CHAR(3)          NOT NULL,
+IF OBJECT_ID('dbo.Accounts','U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Accounts
+    (
+        IBAN       NVARCHAR(34) NOT NULL CONSTRAINT PK_Accounts PRIMARY KEY,
+        CustomerId UNIQUEIDENTIFIER NOT NULL,
+        CreatedAt  DATETIME2(3)     NOT NULL CONSTRAINT DF_Accounts_CreatedAt DEFAULT SYSUTCDATETIME(),
+        Currency   CHAR(3)          NOT NULL,
 
-    CONSTRAINT FK_Accounts_Customers
-        FOREIGN KEY (CustomerId) REFERENCES dbo.Customers(CustomerId)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
-);
+        CONSTRAINT FK_Accounts_Customers
+            FOREIGN KEY (CustomerId) REFERENCES dbo.Customers(CustomerId)
+            ON DELETE NO ACTION ON UPDATE NO ACTION
+    );
+    CREATE INDEX IX_Accounts_CustomerId ON dbo.Accounts(CustomerId);
+END;
 GO
-CREATE INDEX IX_Accounts_CustomerId ON dbo.Accounts(CustomerId);
-GO
-
 
 -- Transfers --
-IF OBJECT_ID('dbo.Transfers','U') IS NOT NULL DROP TABLE dbo.Transfers;
-GO
-CREATE TABLE dbo.Transfers
-(
-    TransferId     UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Transfers PRIMARY KEY,
-    FromAccountId  NVARCHAR(34)     NOT NULL,
-    ToAccountId    NVARCHAR(34)     NOT NULL,
-    ReviewedBy     UNIQUEIDENTIFIER NULL,
-    CreatedAt      DATETIME2(3)     NOT NULL CONSTRAINT DF_Transfers_CreatedAt DEFAULT SYSUTCDATETIME(),
-    Status         VARCHAR(30)      NOT NULL,   -- Pending, Completed, Rejected, UnderReview
-    Amount         DECIMAL(18,2)    NOT NULL,
-    Currency       CHAR(3)          NOT NULL,
-    Reason         NVARCHAR(500)    NULL,
-    CompletedAt    DATETIME2(3)     NULL,
-    PolicyVersion  VARCHAR(20)      NULL,
+IF OBJECT_ID('dbo.Transfers','U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Transfers
+    (
+        TransferId     UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Transfers PRIMARY KEY,
+        FromAccountId  NVARCHAR(34)     NOT NULL,
+        ToAccountId    NVARCHAR(34)     NOT NULL,
+        ReviewedBy     UNIQUEIDENTIFIER NULL,
+        CreatedAt      DATETIME2(3)     NOT NULL CONSTRAINT DF_Transfers_CreatedAt DEFAULT SYSUTCDATETIME(),
+        Status         VARCHAR(30)      NOT NULL,   -- Pending, Completed, Rejected, UnderReview
+        Amount         DECIMAL(18,2)    NOT NULL,
+        Currency       CHAR(3)          NOT NULL,
+        Reason         NVARCHAR(500)    NULL,
+        CompletedAt    DATETIME2(3)     NULL,
+        PolicyVersion  VARCHAR(20)      NULL,
 
-    CONSTRAINT CK_Transfers_Status
-        CHECK (Status IN ('Pending','Completed','Rejected','UnderReview')),
-    CONSTRAINT CK_Transfers_FromToDifferent
-        CHECK (FromAccountId <> ToAccountId),
+        CONSTRAINT CK_Transfers_Status
+            CHECK (Status IN ('Pending','Completed','Rejected','UnderReview')),
+        CONSTRAINT CK_Transfers_FromToDifferent
+            CHECK (FromAccountId <> ToAccountId),
 
-    CONSTRAINT FK_Transfers_FromAccount
-        FOREIGN KEY (FromAccountId) REFERENCES dbo.Accounts(IBAN)
-        ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT FK_Transfers_ToAccount
-        FOREIGN KEY (ToAccountId)   REFERENCES dbo.Accounts(IBAN)
-        ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT FK_Transfers_ReviewedBy
-        FOREIGN KEY (ReviewedBy)    REFERENCES dbo.Employees(EmployeeId)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-GO
-CREATE INDEX IX_Transfers_FromAccountId ON dbo.Transfers(FromAccountId);
-CREATE INDEX IX_Transfers_ToAccountId   ON dbo.Transfers(ToAccountId);
-CREATE INDEX IX_Transfers_StatusCreated ON dbo.Transfers(Status, CreatedAt);
+        CONSTRAINT FK_Transfers_FromAccount
+            FOREIGN KEY (FromAccountId) REFERENCES dbo.Accounts(IBAN)
+            ON DELETE NO ACTION ON UPDATE NO ACTION,
+        CONSTRAINT FK_Transfers_ToAccount
+            FOREIGN KEY (ToAccountId)   REFERENCES dbo.Accounts(IBAN)
+            ON DELETE NO ACTION ON UPDATE NO ACTION,
+        CONSTRAINT FK_Transfers_ReviewedBy
+            FOREIGN KEY (ReviewedBy)    REFERENCES dbo.Employees(EmployeeId)
+            ON DELETE NO ACTION ON UPDATE NO ACTION
+    );
+    CREATE INDEX IX_Transfers_FromAccountId ON dbo.Transfers(FromAccountId);
+    CREATE INDEX IX_Transfers_ToAccountId   ON dbo.Transfers(ToAccountId);
+    CREATE INDEX IX_Transfers_StatusCreated ON dbo.Transfers(Status, CreatedAt);
+END;
 GO
 
 
 -- IdempotencyKeys --
-IF OBJECT_ID('dbo.IdempotencyKeys','U') IS NOT NULL DROP TABLE dbo.IdempotencyKeys;
-GO
-CREATE TABLE dbo.IdempotencyKeys
-(
-    [Key]             NVARCHAR(100)  NOT NULL CONSTRAINT PK_IdempotencyKeys PRIMARY KEY,
-    TransferId        UNIQUEIDENTIFIER NOT NULL,
-    RequestHash       NVARCHAR(200)  NULL,
-    ResponseJson      NVARCHAR(MAX)  NULL,
-    FirstProcessedAt  DATETIME2(3)   NULL,
+IF OBJECT_ID('dbo.IdempotencyKeys','U') IS NULL
+BEGIN
+    CREATE TABLE dbo.IdempotencyKeys
+    (
+        [Key]             NVARCHAR(100)  NOT NULL CONSTRAINT PK_IdempotencyKeys PRIMARY KEY,
+        TransferId        UNIQUEIDENTIFIER NOT NULL,
+        RequestHash       NVARCHAR(200)  NULL,
+        ResponseJson      NVARCHAR(MAX)  NULL,
+        FirstProcessedAt  DATETIME2(3)   NULL,
 
-    CONSTRAINT FK_Idem_Transfer
-        FOREIGN KEY (TransferId) REFERENCES dbo.Transfers(TransferId)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-GO
-CREATE INDEX IX_Idem_TransferId ON dbo.IdempotencyKeys(TransferId);
-CREATE UNIQUE INDEX UX_Idem_RequestHash ON dbo.IdempotencyKeys(RequestHash) WHERE RequestHash IS NOT NULL;
+        CONSTRAINT FK_Idem_Transfer
+            FOREIGN KEY (TransferId) REFERENCES dbo.Transfers(TransferId)
+            ON DELETE NO ACTION ON UPDATE NO ACTION
+    );
+    CREATE INDEX IX_Idem_TransferId ON dbo.IdempotencyKeys(TransferId);
+    CREATE UNIQUE INDEX UX_Idem_RequestHash ON dbo.IdempotencyKeys(RequestHash) WHERE RequestHash IS NOT NULL;
+END;
 GO
 
 
@@ -147,8 +143,7 @@ SET QUOTED_IDENTIFIER ON;
 GO
 
 -- CustomerRisk --
-IF OBJECT_ID('dbo.CustomerRisk','U') IS NOT NULL DROP TABLE dbo.CustomerRisk;
-GO
+IF OBJECT_ID('dbo.CustomerRisk','U') IS NULL
 CREATE TABLE dbo.CustomerRisk
 (
     CustomerId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_CustomerRisk PRIMARY KEY,
