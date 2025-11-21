@@ -1,0 +1,81 @@
+# -------------------------
+# JetBrains Rider / IntelliJ
+# -------------------------
+.idea/
+*.sln.iml
+*.DotSettings.user
+*.userprefs
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# -------------------------
+# Build & Output
+# -------------------------
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+[Tt]estResults/
+*.cache/
+*.tmp
+*.temp
+*.pdb
+*.exe
+*.dll
+*.bin
+*.lock.json
+
+# -------------------------
+# Database & Config
+# -------------------------
+DBConfig/
+*.db
+*.db-shm
+*.db-wal
+*.mdf
+*.ldf
+
+# -------------------------
+# Rider / ReSharper Cache
+# -------------------------
+_ReSharper*/
+_ReSharper.Caches/
+*.Rider/
+*.resharper
+*.ncrunch*
+*.dotCover
+
+# -------------------------
+# NuGet
+# -------------------------
+*.nupkg
+*.snupkg
+packages/
+artifacts/
+project.lock.json
+project.fragment.lock.json
+
+# -------------------------
+# HTTP / Environment Files
+# -------------------------
+httpRequests/
+.env
+.env.*
+
+# -------------------------
+# OS / Miscellaneous
+# -------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -------------------------
+# Explicitly keep these
+# -------------------------
+!*.sln
+!*.csproj
+!*.config
+!*.json
+!README.md
