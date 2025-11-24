@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Mediator.Abstractions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.DependencyInjection;
@@ -13,6 +14,9 @@ public static class DependencyInjection
             .AddInfrastructurePersistence()
             .AddInfrastructureRepositories()
             .AddInfrastructureHealthChecks();
+        
+        services.AddScoped<IMediator, Mediator.Mediator>(); 
+        
         return services;
     }
 }

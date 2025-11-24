@@ -1,6 +1,8 @@
 using Infrastructure;
 using Infrastructure.DependencyInjection;
 
+using Mediator.Abstractions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 if (builder.Environment.IsDevelopment())
