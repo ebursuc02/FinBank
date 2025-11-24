@@ -8,6 +8,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Domain\Domain.csproj" />
+      <ProjectReference Include="..\Mediator\Mediator.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="12.1.0" />
     </ItemGroup>
 
 </Project>

@@ -1,10 +1,10 @@
+using Application;
 using Mediator.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddScoped<IMediator, Mediator.Mediator>(); 
+builder.Services.AddApplication();
 
 var app = builder.Build();
 
