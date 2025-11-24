@@ -7,7 +7,7 @@ public class Transfer
     public string ToAccountId { get; set; } = string.Empty; 
     public Guid? ReviewedByEmployeeId { get; set; } 
     public DateTime CreatedAt { get; set; }
-    public string Status { get; set; } = string.Empty;
+    public TransferStatus Status { get; set; } = TransferStatus.Pending;
     public decimal Amount { get; set; } 
     public string Currency { get; set; } = string.Empty; 
     public string? Reason { get; set; } 
@@ -18,4 +18,12 @@ public class Transfer
     public Account? ToAccount { get; set; }
     public Employee? ReviewedBy { get; set; }
     public ICollection<IdempotencyKey> IdempotencyKeys { get; set; } = new List<IdempotencyKey>();
+}
+
+public enum TransferStatus
+{
+    Pending = 0,
+    Completed = 1,
+    Rejected = 2,
+    UnderReview = 3
 }

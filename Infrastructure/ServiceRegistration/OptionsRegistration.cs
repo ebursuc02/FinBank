@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Infrastructure.DependencyInjection;
+namespace Infrastructure.ServiceRegistration;
 
 internal static class OptionsRegistration
 {

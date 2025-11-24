@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
-namespace Infrastructure.DependencyInjection;
+namespace Infrastructure.ServiceRegistration;
 
 internal static class HealthChecksRegistration
 {

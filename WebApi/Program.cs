@@ -1,6 +1,4 @@
 using Infrastructure;
-using Infrastructure.DependencyInjection;
-
 using Application;
 using Mediator.Abstractions;
 

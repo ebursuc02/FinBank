@@ -15,7 +15,10 @@ public class TransferConfig : IEntityTypeConfiguration<Transfer>
         b.Property(x => x.ToAccountId).IsRequired().HasMaxLength(34);
         b.Property(x => x.ReviewedByEmployeeId).HasColumnName("ReviewedBy");
         b.Property(x => x.CreatedAt).IsRequired();
-        b.Property(x => x.Status).IsRequired().HasMaxLength(30);
+        b.Property(x => x.Status)
+            .HasConversion<string>()          
+            .HasMaxLength(30)
+            .IsRequired();
         b.Property(x => x.Amount).IsRequired().HasColumnType("decimal(18,2)");
         b.Property(x => x.Currency).IsRequired().HasMaxLength(3).IsFixedLength();
         b.Property(x => x.Reason).HasMaxLength(500);

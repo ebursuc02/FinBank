@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Infrastructure.DependencyInjection;
+namespace Infrastructure.ServiceRegistration;
 
 internal static class PersistenceRegistration
 {

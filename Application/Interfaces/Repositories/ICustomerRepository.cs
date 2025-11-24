@@ -1,6 +1,6 @@
 ﻿using Domain;
 
-namespace Application.Interfaces.Repository;
+namespace Application.Interfaces.Repositories;
 
 public interface ICustomerRepository
 {

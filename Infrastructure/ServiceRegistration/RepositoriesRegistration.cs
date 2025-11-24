@@ -1,8 +1,8 @@
-﻿using Application.Interfaces.Repository;
+﻿using Application.Interfaces.Repositories;
 using Infrastructure.Persistence.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Infrastructure.DependencyInjection;
+namespace Infrastructure.ServiceRegistration;
 
 internal static class RepositoriesRegistration
 {

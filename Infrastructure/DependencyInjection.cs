@@ -1,8 +1,8 @@
-﻿using Mediator.Abstractions;
+﻿using Infrastructure.ServiceRegistration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Infrastructure.DependencyInjection;
+namespace Infrastructure;
 
 public static class DependencyInjection
 {
