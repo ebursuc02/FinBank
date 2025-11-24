@@ -2,17 +2,18 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistence;
+namespace Infrastructure.Persistence.Configs;
 
-public class CustomerConfig : IEntityTypeConfiguration<Customer>
+public class EmployeeConfig : IEntityTypeConfiguration<Employee>
 {
-    public void Configure(EntityTypeBuilder<Customer> b)
+    public void Configure(EntityTypeBuilder<Employee> b)
     {
-        b.ToTable("Customers", "dbo");
-        b.HasKey(x => x.CustomerId).HasName("PK_Customers");
+        b.ToTable("Employees", "dbo");
+        b.HasKey(x => x.EmployeeId).HasName("PK_Employee");
 
 
-        b.Property(x => x.CustomerId).IsRequired();
+        b.Property(x => x.EmployeeId).IsRequired();
+        b.Property(x => x.Role).IsRequired().HasMaxLength(50);
         b.Property(x => x.CreatedAt).IsRequired();
         b.Property(x => x.Name).IsRequired().HasMaxLength(200);
         b.Property(x => x.PhoneNumber).IsRequired().HasMaxLength(50);

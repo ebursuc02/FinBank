@@ -1,6 +1,6 @@
 ﻿namespace Domain;
 
-public sealed class Customer
+public class Customer
 {
     public Guid CustomerId { get; set; }
     public DateTime CreatedAt { get; set; }

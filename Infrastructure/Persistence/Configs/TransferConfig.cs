@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistence;
+namespace Infrastructure.Persistence.Configs;
 
 public class TransferConfig : IEntityTypeConfiguration<Transfer>
 {

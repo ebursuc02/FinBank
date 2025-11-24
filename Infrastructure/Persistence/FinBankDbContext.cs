@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Infrastructure.Persistence.Configs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence;

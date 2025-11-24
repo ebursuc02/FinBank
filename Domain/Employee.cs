@@ -1,6 +1,6 @@
 ﻿namespace Domain;
 
-public sealed class Employee
+public class Employee
 {
     public Guid EmployeeId { get; set; }
     public string Role { get; set; } = string.Empty;

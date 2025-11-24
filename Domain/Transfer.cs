@@ -1,6 +1,6 @@
 ﻿namespace Domain;
 
-public sealed class Transfer
+public class Transfer
 {
     public Guid TransferId { get; set; } // PK
     public string FromAccountId { get; set; } = string.Empty;
