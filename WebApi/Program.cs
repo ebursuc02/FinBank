@@ -1,6 +1,7 @@
 using Infrastructure;
 using Infrastructure.DependencyInjection;
 
+using Application;
 using Mediator.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,9 +15,9 @@ builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddControllers();
-
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
