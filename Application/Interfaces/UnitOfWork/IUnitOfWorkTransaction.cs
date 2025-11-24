@@ -2,6 +2,6 @@
 
 public interface IUnitOfWorkTransaction : IAsyncDisposable
 {
-    Task CommitAsync(CancellationToken ct = default);
-    Task RollbackAsync(CancellationToken ct = default);
+    Task CommitAsync(CancellationToken ct);
+    Task RollbackAsync(CancellationToken ct);
 }

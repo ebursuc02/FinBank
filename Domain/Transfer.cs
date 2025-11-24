@@ -16,6 +16,6 @@ public class Transfer
     
     public Account? FromAccount { get; set; }
     public Account? ToAccount { get; set; }
-    public Employee? ReviewedByEmployee { get; set; }
+    public Employee? ReviewedBy { get; set; }
     public ICollection<IdempotencyKey> IdempotencyKeys { get; set; } = new List<IdempotencyKey>();
 }

@@ -38,7 +38,7 @@ public class TransferConfig : IEntityTypeConfiguration<Transfer>
             .HasConstraintName("FK_Transfers_ToAccount")
             .OnDelete(DeleteBehavior.NoAction);
 
-        b.HasOne(x => x.ReviewedByEmployee)
+        b.HasOne(x => x.ReviewedBy)
             .WithMany(e => e.ReviewedTransfers)
             .HasForeignKey(x => x.ReviewedByEmployeeId)
             .HasConstraintName("FK_Transfers_ReviewedBy")
