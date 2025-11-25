@@ -4,15 +4,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Persistence.Configs;
 
-public class EmployeeConfig : IEntityTypeConfiguration<Employee>
+public class UserConfig : IEntityTypeConfiguration<User>
 {
-    public void Configure(EntityTypeBuilder<Employee> b)
+    public void Configure(EntityTypeBuilder<User> b)
     {
-        b.ToTable("Employees", "dbo");
-        b.HasKey(x => x.EmployeeId).HasName("PK_Employee");
+        b.ToTable("Users", "dbo");
+        b.HasKey(x => x.UserId).HasName("PK_User");
 
-
-        b.Property(x => x.EmployeeId).IsRequired();
+        b.Property(x => x.Email).IsRequired();
+        b.Property(x => x.Password).IsRequired();
+        b.Property(x => x.UserId).IsRequired();
         b.Property(x => x.Role).IsRequired().HasMaxLength(50);
         b.Property(x => x.CreatedAt).IsRequired();
         b.Property(x => x.Name).IsRequired().HasMaxLength(200);
