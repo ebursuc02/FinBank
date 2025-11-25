@@ -13,12 +13,19 @@ public class GetRiskStatusCommandHandler(IUserRiskRepository repository, IMapper
     public async Task<IResult<UserRiskDto>> HandleAsync(GetRiskStatusCommand command,
         CancellationToken cancellationToken)
     {
-        var riskStatus = await repository.GetByCustomerAsync(command.UserId, cancellationToken);
+        try
+        {
+            var riskStatus = await repository.GetByCustomerAsync(command.UserId, cancellationToken);
 
-        if (riskStatus is null)
-            return Result.Fail<UserRiskDto>("User not found.");
+            if (riskStatus is null)
+                return Result.Fail<UserRiskDto>("User not found.");
 
-        var dto = mapper.Map<UserRiskDto>(riskStatus);
-        return Result.Ok(dto);
+            var dto = mapper.Map<UserRiskDto>(riskStatus);
+            return Result.Ok(dto);
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail<UserRiskDto>(ex.Message);
+        }
     }
 }
