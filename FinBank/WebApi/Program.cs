@@ -1,6 +1,5 @@
 using Infrastructure;
 using Application;
-using Mediator.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
