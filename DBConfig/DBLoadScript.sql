@@ -63,6 +63,7 @@ BEGIN
         IBAN       NVARCHAR(34) NOT NULL CONSTRAINT PK_Accounts PRIMARY KEY,
         CustomerId UNIQUEIDENTIFIER NOT NULL,
         CreatedAt  DATETIME2(3)     NOT NULL CONSTRAINT DF_Accounts_CreatedAt DEFAULT SYSUTCDATETIME(),
+        Balance    DECIMAL(18,2)    NOT NULL CONSTRAINT DF_Accounts_Balance DEFAULT 0,
         Currency   CHAR(3)          NOT NULL,
 
         CONSTRAINT FK_Accounts_Customers

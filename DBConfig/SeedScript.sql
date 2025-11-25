@@ -39,12 +39,12 @@ DECLARE @aliceRon NVARCHAR(34) = N'RO71BANK000000000000000002';
 DECLARE @bobEur   NVARCHAR(34) = N'RO71BANK000000000000000003';
 DECLARE @carolUsd NVARCHAR(34) = N'RO71BANK000000000000000004';
 
-INSERT INTO dbo.Accounts (IBAN, CustomerId, CreatedAt, Currency)
+INSERT INTO dbo.Accounts (IBAN, CustomerId, CreatedAt, Balance, Currency)
 VALUES
-(@aliceEur, @custAlice,  SYSUTCDATETIME(), 'EUR'),
-(@aliceRon, @custAlice,  SYSUTCDATETIME(), 'RON'),
-(@bobEur,   @custBob,    SYSUTCDATETIME(), 'EUR'),
-(@carolUsd, @custCarol,  SYSUTCDATETIME(), 'USD');
+(@aliceEur, @custAlice,  SYSUTCDATETIME(), 1000.50, 'EUR'),
+(@aliceRon, @custAlice,  SYSUTCDATETIME(), 5345, 'RON'),
+(@bobEur,   @custBob,    SYSUTCDATETIME(), 420, 'EUR'),
+(@carolUsd, @custCarol,  SYSUTCDATETIME(), 100.99,  'USD');
 
 -- Transfers
 DECLARE @t1 UNIQUEIDENTIFIER = NEWID();
