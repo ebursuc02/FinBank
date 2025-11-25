@@ -5,14 +5,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-[Route("api/v1/customers/{customerId}/[controller]")]
+[Route("api/v1/customers/{customerId:Guid}/[controller]")]
 [ApiController]
 public class TransfersController(IMediator mediator) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> CreateTransfer([FromBody] CreateTransferCommand command, CancellationToken ct)
+    public async Task<IActionResult> CreateTransfer(
+        [FromBody] CreateTransferCommand command, 
+        Guid customerId,
+        CancellationToken ct)
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid || customerId != command.CustomerId )
         {
             return BadRequest(ModelState);
         }

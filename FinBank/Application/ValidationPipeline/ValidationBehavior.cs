@@ -1,9 +1,11 @@
+using FluentResults;
 using FluentValidation;
 using Mediator.Abstractions;
 
 namespace Application.ValidationPipeline;
-public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
-    :IPipelineBehavior<TRequest, TResponse>
+public class ValidationBehavior<TRequest, TResponse>(
+    IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
+    where TResponse : Result, new()
 {
     public async Task<TResponse> HandleAsync(TRequest input, Func<Task<TResponse>> next, CancellationToken cancellationToken = default)
     {
@@ -13,7 +15,11 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
             .SelectMany(result => result.Errors)
             .Where(f => f != null)
             .ToList();
-
-        return failures.Count != 0 ? throw new ValidationException(failures) : await next();
+        
+        if (failures.Count == 0) return await next();
+        
+        var fail = new TResponse();
+        fail.WithError(failures.ToString());
+        return fail;
     }
 }

@@ -9,16 +9,21 @@ namespace Application.UseCases.CommandHandlers;
 
 public sealed class CreateTransferCommandHandler(
     IRiskContext riskContext, 
-    ITransferRepository repository) : ICommandHandler<CreateTransferCommand, Result>
+    ITransferRepository repository,
+    IAccountRepository accountRepository) : ICommandHandler<CreateTransferCommand, Result>
 {
-    
     public async Task<Result> HandleAsync(CreateTransferCommand cmd, CancellationToken ct)
     {
-        if(riskContext.Current is null) return Result.Fail("Risk could not be evaluated.");
+        var senderAccount = accountRepository.GetByIbanAsync(cmd.FromAccountId, ct).Result;
+        var receiverAccount = accountRepository.GetByIbanAsync(cmd.ToAccountId, ct).Result;
         
+        if(receiverAccount is null) return Result.Fail("Receiver account does not exist."); 
+        if(cmd.Amount > senderAccount!.Balance) return Result.Fail("No sufficient funds."); 
+        
+        if(riskContext.Current is null) return Result.Fail("Risk could not be evaluated.");
         var context = riskContext.Current;
-
-        var entity = new Transfer
+        
+        var transfer = new Transfer
         {
             TransferId = Guid.NewGuid(),
             FromAccountId = cmd.FromAccountId,
@@ -31,9 +36,12 @@ public sealed class CreateTransferCommandHandler(
             CreatedAt = DateTime.UtcNow,
         };
         
-        // TODO: accounts update and currency converting if needed
-
-        await repository.AddAsync(entity, ct);
+        senderAccount!.ApplyTransfer(-transfer.Amount, transfer.Currency);
+        receiverAccount.ApplyTransfer(transfer.Amount, transfer.Currency);
+        
+        await accountRepository.UpdateAsync(senderAccount, ct);
+        await accountRepository.UpdateAsync(receiverAccount, ct);
+        await repository.AddAsync(transfer, ct);
         return Result.Ok();
     }
 }

@@ -7,5 +7,4 @@ public sealed record RiskContextData(TransferStatus Decision, string? Reason, st
 public interface IRiskContext
 {
     RiskContextData? Current { get; set; }
-    void Clear();
 }

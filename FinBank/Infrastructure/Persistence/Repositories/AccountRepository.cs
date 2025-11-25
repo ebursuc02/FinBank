@@ -17,7 +17,9 @@ public class AccountRepository(FinBankDbContext db) : IAccountRepository
 
 
     public async Task AddAsync(Account account, CancellationToken ct)
-    {
-        await db.Accounts.AddAsync(account, ct);
-    }
+        => await db.Accounts.AddAsync(account, ct);
+
+    public Task UpdateAsync(Account account, CancellationToken ct)
+        => Task.FromResult(db.Accounts.Update(account));
+        
 }

@@ -10,6 +10,7 @@ public sealed class RiskEvaluationBehavior<TReq, TRes>(
     IRiskClient riskClient,
     IRiskPolicyEvaluator evaluator,
     IRiskContext riskContext) : IPipelineBehavior<TReq, TRes>
+    where TRes : Result
 {
     public async Task<TRes> HandleAsync(
         TReq request,
@@ -26,13 +27,6 @@ public sealed class RiskEvaluationBehavior<TReq, TRes>(
         
         riskContext.Current = new RiskContextData(decision, reason, policyVersion);
         
-        try
-        {
-            return await next();
-        }
-        finally
-        {
-            riskContext.Clear();
-        }
+        return await next();
     }
 }

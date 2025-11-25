@@ -5,13 +5,26 @@ using Mediator.Abstractions;
 
 namespace Application.ValidationPipeline;
 
-public sealed class AuthorizationBehavior<TReq,TRes>(IAccountRepository repo) : IPipelineBehavior<TReq,TRes>
+public sealed class AuthorizationBehavior<TReq, TRes>(
+    IAccountRepository repo) : IPipelineBehavior<TReq, TRes>
+    where TRes : Result, new()
 {
-    public Task<TRes> HandleAsync(TReq request, Func<Task<TRes>> next, CancellationToken ct)
+    public async Task<TRes> HandleAsync(
+        TReq request,
+        Func<Task<TRes>> next,
+        CancellationToken ct)
     {
-        if (request is not CreateTransferCommand cmd) return next();
-        var account = repo.GetByIbanAsync(cmd.FromAccountId, ct).Result;
-        var ok = account != null && account.CustomerId == cmd.CustomerId && cmd.Amount <= account.Balance;
-        return !ok ? throw new UnauthorizedAccessException("Reason: bank account is not owned by user or not sufficient funds.") : next();
+        if (request is not CreateTransferCommand cmd)
+            return await next();
+        
+        var account = await repo.GetByIbanAsync(cmd.FromAccountId, ct);
+
+        var ownershipApproved = account is not null && account.CustomerId == cmd.CustomerId;
+        if (ownershipApproved)
+            return await next();
+        
+        var fail = new TRes();
+        fail.WithError("Sender account is not owned by the customer.");
+        return fail;
     }
 }
