@@ -1,6 +1,8 @@
 using Infrastructure;
 using Application;
 using Mediator.Abstractions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,20 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddControllers();
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(o =>
+    {
+        o.Authority = builder.Configuration["Authentication:Authority"]; // set later
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidAudience = builder.Configuration["Authentication:Audience"],
+            ValidateAudience = true, ValidateIssuer = true, ValidateLifetime = true
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddHttpClient();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -25,7 +41,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.MapHealthChecks("/health");
 }
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.UseAuthentication();
 app.MapControllers(); 
 
-app.UseHttpsRedirection();
 app.Run();

@@ -1,4 +1,6 @@
-﻿namespace Domain;
+﻿using Domain.Enums;
+
+namespace Domain;
 
 public class Transfer
 {
@@ -18,12 +20,4 @@ public class Transfer
     public Account? ToAccount { get; set; }
     public Employee? ReviewedBy { get; set; }
     public ICollection<IdempotencyKey> IdempotencyKeys { get; set; } = new List<IdempotencyKey>();
-}
-
-public enum TransferStatus
-{
-    Pending = 0,
-    Completed = 1,
-    Rejected = 2,
-    UnderReview = 3
 }

@@ -1,7 +1,7 @@
 using FluentValidation;
 using Mediator.Abstractions;
 
-namespace Application;
+namespace Application.ValidationPipeline;
 public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
     :IPipelineBehavior<TRequest, TResponse>
 {
@@ -13,11 +13,7 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
             .SelectMany(result => result.Errors)
             .Where(f => f != null)
             .ToList();
-        if (failures.Count != 0)
-        {
-            throw new ValidationException(failures);
-        }
 
-        return await next();
+        return failures.Count != 0 ? throw new ValidationException(failures) : await next();
     }
 }
