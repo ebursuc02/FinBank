@@ -53,6 +53,8 @@ BEGIN
         Balance    DECIMAL(18,2)    NOT NULL CONSTRAINT DF_Accounts_Balance DEFAULT 0,
         Currency   VARCHAR(3)       NOT NULL,
 
+        CONSTRAINT CK_Currency
+            CHECK (Currency IN ('RON','USD','EUR')),
         CONSTRAINT FK_Accounts_Customers
             FOREIGN KEY (CustomerId) REFERENCES dbo.Users(UserId)
             ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -82,6 +84,8 @@ BEGIN
             CHECK (Status IN ('Pending','Completed','Rejected','UnderReview')),
         CONSTRAINT CK_Transfers_FromToDifferent
             CHECK (FromAccountId <> ToAccountId),
+        CONSTRAINT CK_Currency_Transfers
+            CHECK (Currency IN ('RON','USD','EUR')),
 
         CONSTRAINT FK_Transfers_FromAccount
             FOREIGN KEY (FromAccountId) REFERENCES dbo.Accounts(IBAN)
