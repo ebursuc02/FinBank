@@ -10,7 +10,7 @@ namespace WebApi.Controllers;
 public class TransfersController(IMediator mediator) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> CreateCourse([FromBody] CreateTransferCommand command, CancellationToken ct)
+    public async Task<IActionResult> CreateTransfer([FromBody] CreateTransferCommand command, CancellationToken ct)
     {
         if (!ModelState.IsValid)
         {

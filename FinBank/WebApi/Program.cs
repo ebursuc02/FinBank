@@ -1,6 +1,5 @@
 using Infrastructure;
 using Application;
-using Mediator.Abstractions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
