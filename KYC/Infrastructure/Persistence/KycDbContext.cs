@@ -6,7 +6,7 @@ namespace Infrastructure.Persistence;
 
 public class KycDbContext(DbContextOptions<KycDbContext> options) : DbContext(options)
 {
-    public DbSet<CustomerRisk> Accounts => Set<CustomerRisk>();
+    public DbSet<CustomerRisk> Customers => Set<CustomerRisk>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
