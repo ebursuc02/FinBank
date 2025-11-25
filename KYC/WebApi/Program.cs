@@ -1,5 +1,6 @@
 using Infrastructure;
 using Application;
+using WebApi.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
+builder.Services.AddAutoMapper(_ => { }, typeof(WebApiMappingProfile).Assembly);
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -24,7 +26,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.MapHealthChecks("/health");
 }
-app.MapControllers(); 
+
+app.MapControllers();
 
 app.UseHttpsRedirection();
 app.Run();

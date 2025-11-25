@@ -8,7 +8,7 @@ internal static class RepositoriesRegistration
 {
     public static IServiceCollection AddInfrastructureRepositories(this IServiceCollection services)
     {
-        services.AddScoped<ICustomerRiskRepository, CustomerRiskRepository>();
+        services.AddScoped<IUserRiskRepository, UserRiskRepository>();
 
         return services;
     }

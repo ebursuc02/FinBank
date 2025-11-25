@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories;
 
-public class CustomerRiskRepository(KycDbContext db) : ICustomerRiskRepository
+public class UserRiskRepository(KycDbContext db) : IUserRiskRepository
 {
     public async Task<CustomerRisk?> GetByCustomerAsync(Guid id, CancellationToken ct)
         => await db.Customers.AsNoTracking()
