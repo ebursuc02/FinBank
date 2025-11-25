@@ -23,34 +23,21 @@ SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
 GO
 
--- Customers --
-IF OBJECT_ID('dbo.Customers','U') IS NULL
-CREATE TABLE dbo.Customers
-(
-    CustomerId     UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Customers PRIMARY KEY,
-    CreatedAt      DATETIME2(3)     NOT NULL CONSTRAINT DF_Customers_CreatedAt DEFAULT SYSUTCDATETIME(),
-    Name           NVARCHAR(200)    NOT NULL,
-    PhoneNumber    NVARCHAR(50)     NOT NULL,
-    Country        NVARCHAR(100)    NULL,
-    Birthday       DATE             NULL,
-    Address        NVARCHAR(300)    NULL
-);
-GO
 
-
--- Employees --
-IF OBJECT_ID('dbo.Employees','U') IS NULL
-CREATE TABLE dbo.Employees
+-- Users --
+IF OBJECT_ID('dbo.Users','U') IS NULL
+CREATE TABLE dbo.Users
 (
-    EmployeeId    UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Employee PRIMARY KEY,
+    UserId        UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_User PRIMARY KEY,
+    Email         NVARCHAR(100)    NOT NULL CONSTRAINT UN_User_Email UNIQUE,
+    Password      NVARCHAR(128)    NOT NULL,
     Role          NVARCHAR(50)     NOT NULL,
-    CreatedAt     DATETIME2(3)     NOT NULL CONSTRAINT DF_Employee_CreatedAt DEFAULT SYSUTCDATETIME(),
+    CreatedAt     DATETIME2(3)     NOT NULL CONSTRAINT DF_User_CreatedAt DEFAULT SYSUTCDATETIME(),
     Name          NVARCHAR(200)    NOT NULL,
     PhoneNumber   NVARCHAR(50)     NOT NULL,
     Country       NVARCHAR(100)    NULL,
     Birthday      DATE             NULL,
-    Address       NVARCHAR(300)    NULL
-    
+    Address       NVARCHAR(300)    NULL 
 );
 GO
 
@@ -60,14 +47,14 @@ IF OBJECT_ID('dbo.Accounts','U') IS NULL
 BEGIN
     CREATE TABLE dbo.Accounts
     (
-        IBAN       NVARCHAR(34) NOT NULL CONSTRAINT PK_Accounts PRIMARY KEY,
+        IBAN       VARCHAR(34)      NOT NULL CONSTRAINT PK_Accounts PRIMARY KEY,
         CustomerId UNIQUEIDENTIFIER NOT NULL,
         CreatedAt  DATETIME2(3)     NOT NULL CONSTRAINT DF_Accounts_CreatedAt DEFAULT SYSUTCDATETIME(),
         Balance    DECIMAL(18,2)    NOT NULL CONSTRAINT DF_Accounts_Balance DEFAULT 0,
-        Currency   CHAR(3)          NOT NULL,
+        Currency   VARCHAR(3)       NOT NULL,
 
         CONSTRAINT FK_Accounts_Customers
-            FOREIGN KEY (CustomerId) REFERENCES dbo.Customers(CustomerId)
+            FOREIGN KEY (CustomerId) REFERENCES dbo.Users(UserId)
             ON DELETE NO ACTION ON UPDATE NO ACTION
     );
     CREATE INDEX IX_Accounts_CustomerId ON dbo.Accounts(CustomerId);
@@ -80,8 +67,8 @@ BEGIN
     CREATE TABLE dbo.Transfers
     (
         TransferId     UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Transfers PRIMARY KEY,
-        FromAccountId  NVARCHAR(34)     NOT NULL,
-        ToAccountId    NVARCHAR(34)     NOT NULL,
+        FromAccountId  VARCHAR(34)      NOT NULL,
+        ToAccountId    VARCHAR(34)      NOT NULL,
         ReviewedBy     UNIQUEIDENTIFIER NULL,
         CreatedAt      DATETIME2(3)     NOT NULL CONSTRAINT DF_Transfers_CreatedAt DEFAULT SYSUTCDATETIME(),
         Status         VARCHAR(30)      NOT NULL,   -- Pending, Completed, Rejected, UnderReview
@@ -103,7 +90,7 @@ BEGIN
             FOREIGN KEY (ToAccountId)   REFERENCES dbo.Accounts(IBAN)
             ON DELETE NO ACTION ON UPDATE NO ACTION,
         CONSTRAINT FK_Transfers_ReviewedBy
-            FOREIGN KEY (ReviewedBy)    REFERENCES dbo.Employees(EmployeeId)
+            FOREIGN KEY (ReviewedBy)    REFERENCES dbo.Users(UserId)
             ON DELETE NO ACTION ON UPDATE NO ACTION
     );
     CREATE INDEX IX_Transfers_FromAccountId ON dbo.Transfers(FromAccountId);
@@ -118,11 +105,11 @@ IF OBJECT_ID('dbo.IdempotencyKeys','U') IS NULL
 BEGIN
     CREATE TABLE dbo.IdempotencyKeys
     (
-        [Key]             NVARCHAR(100)  NOT NULL CONSTRAINT PK_IdempotencyKeys PRIMARY KEY,
+        [Key]             NVARCHAR(100)    NOT NULL CONSTRAINT PK_IdempotencyKeys PRIMARY KEY,
         TransferId        UNIQUEIDENTIFIER NOT NULL,
-        RequestHash       NVARCHAR(200)  NULL,
-        ResponseJson      NVARCHAR(MAX)  NULL,
-        FirstProcessedAt  DATETIME2(3)   NULL,
+        RequestHash       NVARCHAR(200)    NULL,
+        ResponseJson      NVARCHAR(MAX)    NULL,
+        FirstProcessedAt  DATETIME2(3)     NULL,
 
         CONSTRAINT FK_Idem_Transfer
             FOREIGN KEY (TransferId) REFERENCES dbo.Transfers(TransferId)
@@ -154,7 +141,6 @@ CREATE TABLE dbo.CustomerRisk
     CONSTRAINT CK_CustomerRisk_Status CHECK (RiskStatus IN ('Low','Medium','High','Blocked','Unknown'))
 );
 GO
-
 
 
 PRINT 'Databases FinBank and KYC created with required tables and constraints.';

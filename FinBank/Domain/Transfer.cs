@@ -5,7 +5,7 @@ public class Transfer
     public Guid TransferId { get; set; } // PK
     public string FromAccountId { get; set; } = string.Empty;
     public string ToAccountId { get; set; } = string.Empty; 
-    public Guid? ReviewedByEmployeeId { get; set; } 
+    public Guid? ReviewedBy { get; set; } 
     public DateTime CreatedAt { get; set; }
     public TransferStatus Status { get; set; } = TransferStatus.Pending;
     public decimal Amount { get; set; } 
@@ -16,7 +16,7 @@ public class Transfer
     
     public Account? FromAccount { get; set; }
     public Account? ToAccount { get; set; }
-    public Employee? ReviewedBy { get; set; }
+    public User? Admin { get; set; }
     public ICollection<IdempotencyKey> IdempotencyKeys { get; set; } = new List<IdempotencyKey>();
 }
 

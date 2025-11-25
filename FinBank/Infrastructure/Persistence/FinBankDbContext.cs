@@ -6,8 +6,7 @@ namespace Infrastructure.Persistence;
 
 public class FinBankDbContext(DbContextOptions<FinBankDbContext> options) : DbContext(options)
 {
-    public DbSet<Customer> Customers => Set<Customer>();
-    public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<User> Users => Set<User>();
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Transfer> Transfers => Set<Transfer>();
     public DbSet<IdempotencyKey> IdempotencyKeys => Set<IdempotencyKey>();
@@ -15,8 +14,7 @@ public class FinBankDbContext(DbContextOptions<FinBankDbContext> options) : DbCo
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new CustomerConfig());
-        modelBuilder.ApplyConfiguration(new EmployeeConfig());
+        modelBuilder.ApplyConfiguration(new UserConfig());
         modelBuilder.ApplyConfiguration(new AccountConfig());
         modelBuilder.ApplyConfiguration(new TransferConfig());
         modelBuilder.ApplyConfiguration(new IdempotencyKeyConfig());

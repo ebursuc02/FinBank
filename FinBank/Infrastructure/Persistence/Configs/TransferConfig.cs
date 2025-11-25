@@ -13,7 +13,7 @@ public class TransferConfig : IEntityTypeConfiguration<Transfer>
         
         b.Property(x => x.FromAccountId).IsRequired().HasMaxLength(34);
         b.Property(x => x.ToAccountId).IsRequired().HasMaxLength(34);
-        b.Property(x => x.ReviewedByEmployeeId).HasColumnName("ReviewedBy");
+        b.Property(x => x.Admin).HasColumnName("ReviewedBy");
         b.Property(x => x.CreatedAt).IsRequired();
         b.Property(x => x.Status)
             .HasConversion<string>()          
@@ -41,9 +41,9 @@ public class TransferConfig : IEntityTypeConfiguration<Transfer>
             .HasConstraintName("FK_Transfers_ToAccount")
             .OnDelete(DeleteBehavior.NoAction);
 
-        b.HasOne(x => x.ReviewedBy)
-            .WithMany(e => e.ReviewedTransfers)
-            .HasForeignKey(x => x.ReviewedByEmployeeId)
+        b.HasOne(x => x.Admin)
+            .WithMany()
+            .HasForeignKey(x => x.ReviewedBy)
             .HasConstraintName("FK_Transfers_ReviewedBy")
             .OnDelete(DeleteBehavior.NoAction);
     }
