@@ -8,8 +8,7 @@ internal static class RepositoriesRegistration
 {
     public static IServiceCollection AddInfrastructureRepositories(this IServiceCollection services)
     {
-        services.AddScoped<ICustomerRepository, CustomerRepository>();
-        services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAccountRepository,  AccountRepository>();
         services.AddScoped<ITransferRepository, TransferRepository>();
         services.AddScoped<IIdempotencyRepository, IdempotencyRepository>();

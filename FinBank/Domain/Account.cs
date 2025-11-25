@@ -8,5 +8,5 @@ public class Account
     public decimal Balance { get; set; } 
     public string Currency { get; set; } = string.Empty; // CHAR(3)
 
-    public Customer? Customer { get; set; }
+    public User? Customer { get; set; }
 }
