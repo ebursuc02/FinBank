@@ -3,20 +3,26 @@ using Mediator.Abstractions;
 
 namespace Application.ValidationPipeline;
 
-public sealed class TransactionBehavior<TReq,TRes>(IUnitOfWork uow) : IPipelineBehavior<TReq,TRes>
+public sealed class TransactionBehavior<TReq, TRes>(IUnitOfWork uow)
+    : IPipelineBehavior<TReq, TRes>
 {
-    public Task<TRes> HandleAsync(TReq input, Func<Task<TRes>> next, CancellationToken ct)
+    public async Task<TRes> HandleAsync(
+        TReq request,
+        Func<Task<TRes>> next,
+        CancellationToken ct = default)
     {
-        var transaction = uow.BeginTransactionAsync(ct).Result;
+        await using var transaction = await uow.BeginTransactionAsync(ct);
+
         try
         {
-            var result = next();
-            transaction.CommitAsync(ct);
+            var result = await next();
+            await uow.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
             return result;
         }
         catch
         {
-            transaction.RollbackAsync(ct);
+            await transaction.RollbackAsync(ct);
             throw;
         }
     }

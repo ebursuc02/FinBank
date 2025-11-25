@@ -1,4 +1,6 @@
 
+using Application.Interfaces.Kyc;
+using Application.Policies;
 using Application.UseCases.CommandHandlers;
 using Application.UseCases.Commands;
 using Application.ValidationPipeline;
@@ -17,5 +19,7 @@ public static class DependencyInjection
             .AddScoped(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehavior<,>))
             .AddScoped(typeof(IPipelineBehavior<,>), typeof(RiskEvaluationBehavior<,>))
             .AddScoped(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>))
-            .AddScoped<ICommandHandler<CreateTransferCommand, Result>, CreateTransferCommandHandler>();
+            .AddScoped<ICommandHandler<CreateTransferCommand, Result>, CreateTransferCommandHandler>()
+            .AddScoped<IRiskPolicyEvaluator, StatusRiskPolicyEvaluator>()
+            .AddScoped<IRiskContext, RiskContext>();
 }

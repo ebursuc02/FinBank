@@ -18,7 +18,7 @@ internal sealed class RiskHttpClient(HttpClient http) : IRiskClient
         {
             "LOW" => RiskStatus.Low, "MEDIUM" => RiskStatus.Medium,
             "HIGH" => RiskStatus.High, "BLOCKED" => RiskStatus.Blocked,
-            _ => RiskStatus.Low
+            _ => RiskStatus.Medium
         };
 
         return state;
