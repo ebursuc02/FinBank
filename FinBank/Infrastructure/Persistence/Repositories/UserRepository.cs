@@ -8,8 +8,10 @@ public class UserRepository(FinBankDbContext db) : IUserRepository
 {
     public async Task<User?> GetAsync(Guid userId, CancellationToken ct)
         => await db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == userId, ct);
-
-
+    
+    public async Task<User?> GetAccountAsync(string email, CancellationToken ct)
+        => await db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email, ct);
+    
     public async Task AddAsync(User user, CancellationToken ct)
     {
         await db.Users.AddAsync(user, ct);

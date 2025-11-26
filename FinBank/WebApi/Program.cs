@@ -7,6 +7,7 @@ using Application;
 using Application.Security;
 using Application.Security.Interfaces;
 using Mediator.Abstractions;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +38,6 @@ builder.Services.AddControllers();
 
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
