@@ -3,11 +3,15 @@ using Application.Interfaces.Kyc;
 using Application.Policies;
 using Application.UseCases.CommandHandlers;
 using Application.UseCases.Commands;
+using Application.UseCases.Commands.UserCommands;
 using Application.UseCases.Queries;
+using Application.UseCases.Queries.CustomerQueries;
 using Application.UseCases.QueryHandlers;
 using Application.ValidationPipeline;
+using Domain;
 using FluentResults;
 using Mediator.Abstractions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application;
@@ -24,7 +28,7 @@ public static class DependencyInjection
             .AddScoped<IQueryHandler<GetUserByIdQuery, User?>, GetUserByIdQueryHandler>()
             .AddScoped<IPasswordHasher<string>, PasswordHasher<string>>()
             .AddScoped<ICommandHandler<RegisterUserCommand, Result<User>>, RegisterUserCommandHandler>()
-            .AddScoped<ICommandHandler<LoginUserCommand, Result<User>>, LoginUserCommandHandler>();
+            .AddScoped<ICommandHandler<LoginUserCommand, Result<User>>, LoginUserCommandHandler>()
             .AddScoped<ICommandHandler<CreateTransferCommand, Result>, CreateTransferCommandHandler>()
             .AddScoped<IRiskPolicyEvaluator, StatusRiskPolicyEvaluator>()
             .AddScoped<IRiskContext, RiskContext>()
