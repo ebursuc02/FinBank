@@ -14,7 +14,7 @@ public sealed class CreateTransferCommandHandler(
 {
     public async Task<Result> HandleAsync(CreateTransferCommand cmd, CancellationToken ct)
     {
-        var senderAccount = accountRepository.GetByIbanAsync(cmd.FromIban, ct).Result;
+        var senderAccount = accountRepository.GetByIbanAsync(cmd.Iban, ct).Result;
         var receiverAccount = accountRepository.GetByIbanAsync(cmd.ToIban, ct).Result;
         
         if(receiverAccount is null) return Result.Fail("Receiver account does not exist."); 
@@ -26,7 +26,7 @@ public sealed class CreateTransferCommandHandler(
         var transfer = new Transfer
         {
             TransferId = Guid.NewGuid(),
-            FromIban = cmd.FromIban,
+            FromIban = cmd.Iban,
             ToIban = cmd.ToIban,
             Amount = decimal.Round(cmd.Amount, 2, MidpointRounding.ToEven),
             Currency = cmd.Currency,

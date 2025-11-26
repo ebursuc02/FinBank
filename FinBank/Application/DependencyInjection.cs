@@ -1,6 +1,6 @@
-
 using Application.DTOs;
 using Application.Interfaces.Kyc;
+using Application.Mapping;
 using Application.Policies;
 using Application.UseCases.CommandHandlers;
 using Application.UseCases.Commands;
@@ -25,5 +25,7 @@ public static class DependencyInjection
             .AddScoped<ICommandHandler<CreateTransferCommand, Result>, CreateTransferCommandHandler>()
             .AddScoped<IRiskPolicyEvaluator, StatusRiskPolicyEvaluator>()
             .AddScoped<IRiskContext, RiskContext>()
-            .AddScoped<IQueryHandler<GetTransfersQuery, Result<IEnumerable<TransferOverviewDto>>>,  GetTransfersQueryHandler>();
+            .AddScoped<IQueryHandler<GetTransfersQuery, Result<IEnumerable<TransferDto>>>, GetTransfersQueryHandler>()
+            .AddScoped<IQueryHandler<GetTransferByIdQuery, Result<TransferDto>>, GetTransferByIdQueryHandler>()
+            .AddAutoMapper(_ => { }, typeof(ApplicationMappingProfile).Assembly);
 }
