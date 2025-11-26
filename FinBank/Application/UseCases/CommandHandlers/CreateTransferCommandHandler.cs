@@ -9,7 +9,7 @@ namespace Application.UseCases.CommandHandlers;
 
 public sealed class CreateTransferCommandHandler(
     IRiskContext riskContext, 
-    ITransferRepository repository,
+    ITransferRepository transferRepository,
     IAccountRepository accountRepository) : ICommandHandler<CreateTransferCommand, Result>
 {
     public async Task<Result> HandleAsync(CreateTransferCommand cmd, CancellationToken ct)
@@ -41,7 +41,7 @@ public sealed class CreateTransferCommandHandler(
         
         await accountRepository.UpdateAsync(senderAccount, ct);
         await accountRepository.UpdateAsync(receiverAccount, ct);
-        await repository.AddAsync(transfer, ct);
+        await transferRepository.AddAsync(transfer, ct);
         return Result.Ok();
     }
 }

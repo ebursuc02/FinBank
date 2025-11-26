@@ -8,12 +8,12 @@ using WebApi.DTOs;
 
 namespace WebApi.Controllers;
 
-[Route("api/v1/kyc/[controller]")]
+[Route("api/v1/[controller]")]
 [ApiController]
 public class KycController(IMediator mediator, IMapper mapper) : ControllerBase
 {
     [HttpGet]
-    [Route("/{userId}")]
+    [Route("{userId:Guid}")]
     public async Task<IActionResult> GetUserKycAsync(Guid userId, CancellationToken cancellationToken)
     {
         var command = new GetRiskStatusCommand { UserId = userId };

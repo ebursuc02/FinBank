@@ -23,6 +23,7 @@ public class GetTransfersQueryHandler(
             offset,
             ct);
 
+        // TODO: refactoring needed
         var dtoList = transfers
             .Select(t =>
             {
@@ -38,8 +39,6 @@ public class GetTransfersQueryHandler(
                 var counterpartyIban = isOutgoing
                     ? t.ToIban
                     : t.FromIban;
-                
-                // TODO: fetch name 
 
                 return new TransferOverviewDto
                 {

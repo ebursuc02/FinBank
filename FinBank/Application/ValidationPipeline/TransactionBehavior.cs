@@ -19,7 +19,7 @@ public sealed class TransactionBehavior<TReq, TRes>(IUnitOfWork uow)
             .Any(i => i.IsGenericType &&
                       i.GetGenericTypeDefinition() == typeof(IQuery<>));
 
-        if (isQuery) return  await next();
+        if (isQuery) return await next();
         
         await using var transaction = await uow.BeginTransactionAsync(ct);
 

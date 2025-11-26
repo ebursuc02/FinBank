@@ -10,7 +10,7 @@ internal sealed class RiskHttpClient(HttpClient http) : IRiskClient
 {
     public async Task<Result<RiskStatus>> GetAsync(Guid customerId, CancellationToken ct)
     {
-        var resp = await http.GetFromJsonAsync<RiskRecordDto>($"kyc/{customerId}", ct);
+        var resp = await http.GetFromJsonAsync<RiskRecordDto>($"/api/v1/kyc/{customerId}", ct);
         
         if(resp == null) return Result.Fail("Empty KYC response");
 
