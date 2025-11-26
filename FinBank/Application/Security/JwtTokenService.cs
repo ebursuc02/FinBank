@@ -25,7 +25,8 @@ public class JwtTokenService : IJwtTokenService
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
-            new Claim(JwtRegisteredClaimNames.UniqueName, user.Email ?? string.Empty),
+            new Claim(JwtRegisteredClaimNames.UniqueName, user.Email),
+            new Claim(ClaimTypes.Role, user.Role)
         };
 
         var cred = new SigningCredentials(new SymmetricSecurityKey(_key), SecurityAlgorithms.HmacSha256);

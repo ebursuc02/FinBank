@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using System.Windows.Input;
+using Application.DTOs;
 using Microsoft.AspNetCore.Identity;
 
 using Application.Interfaces.Repositories;
@@ -13,13 +14,13 @@ namespace Application.UseCases.CommandHandlers;
 
 public class RegisterUserCommandHandler(
     IUserRepository repository, IPasswordHasher<string> passwordHasher)
-    : ICommandHandler<RegisterUserCommand, Result<User>>
+    : ICommandHandler<RegisterUserCommand, Result<UserDto>>
 {
-    public Task<Result<User>> HandleAsync(RegisterUserCommand command, CancellationToken cancellationToken)
+    public Task<Result<UserDto>> HandleAsync(RegisterUserCommand command, CancellationToken cancellationToken)
     {
     
         // Create new user
-        var user = new User
+        var user = new UserDto
         {
             UserId = Guid.NewGuid(),
             Email = command.Email,
@@ -28,12 +29,11 @@ public class RegisterUserCommandHandler(
             Country = command.Country,
             Birthday = command.Birthday,
             Address = command.Address,
-            CreatedAt = DateTime.UtcNow
+            Password = passwordHasher.HashPassword(command.Email, command.Password)
         };
 
         Console.WriteLine(user);
         // Hash the password
-        user.Password = passwordHasher.HashPassword(user.Email, command.Password);
 
         // Save user to repository
         return repository.AddAsync(user, cancellationToken)
@@ -41,7 +41,7 @@ public class RegisterUserCommandHandler(
             {
                 if (task.IsFaulted)
                 {
-                    return Result.Fail<User>("Failed to register user.");
+                    return Result.Fail<UserDto>("Failed to register user.");
                 }
                 return Result.Ok(user);
             }, cancellationToken);

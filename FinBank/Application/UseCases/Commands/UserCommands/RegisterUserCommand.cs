@@ -5,7 +5,7 @@ using Mediator.Abstractions;
 
 namespace Application.UseCases.Commands.UserCommands;
 
-public class RegisterUserCommand() : ICommand<Result<User>>
+public class RegisterUserCommand() : ICommand<Result<UserDto>>
 {
     public string Email { get; init; } = string.Empty;
     public string Password { get; init; } = string.Empty;

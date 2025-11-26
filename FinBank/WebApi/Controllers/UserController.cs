@@ -29,7 +29,16 @@ public class Customer(IMediator mediator, IJwtTokenService jwt) : ControllerBase
             case false:
                 return BadRequest("User registration failed");
         }
+
+        if (!user.IsSuccess) return BadRequest("User registration failed");
         
+        jwt.GenerateToken(user.Value);
+        return Ok(new
+        {
+            message = "User registered successfully",
+            token = jwt.GenerateToken(user.Value)
+        });
+
     }
 
     [HttpPost("login", Name = "Login")]
