@@ -7,7 +7,7 @@ public class ValidationBehavior<TRequest, TResponse>(
     IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
     where TResponse : Result, new()
 {
-    public async Task<TResponse> HandleAsync(TRequest input, Func<Task<TResponse>> next, CancellationToken cancellationToken = default)
+    public async Task<TResponse> HandleAsync(TRequest input, Func<Task<TResponse>> next, CancellationToken cancellationToken)
     {
         var context = new ValidationContext<TRequest>(input);
         var failures = validators

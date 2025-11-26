@@ -12,7 +12,7 @@ public class GetTransfersQueryHandler(
 {
     public async Task<Result<IEnumerable<TransferOverviewDto>>> HandleAsync(
         GetTransfersQuery query,
-        CancellationToken ct = default)
+        CancellationToken ct)
     {
         const int pageSize = 5;
         const int offset = 0;

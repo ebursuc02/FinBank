@@ -15,7 +15,7 @@ public sealed class RiskEvaluationBehavior<TReq, TRes>(
     public async Task<TRes> HandleAsync(
         TReq request,
         Func<Task<TRes>> next,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         if (request is not CreateTransferCommand cmd) return await next();
         
