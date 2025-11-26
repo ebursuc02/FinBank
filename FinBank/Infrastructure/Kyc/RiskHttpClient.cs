@@ -14,12 +14,12 @@ internal sealed class RiskHttpClient(HttpClient http) : IRiskClient
         
         if(resp == null) return Result.Fail("Empty KYC response");
 
-        var state = resp.RiskStatus.ToUpperInvariant() switch
-        {
-            "LOW" => RiskStatus.Low, "MEDIUM" => RiskStatus.Medium,
-            "HIGH" => RiskStatus.High, "BLOCKED" => RiskStatus.Blocked,
-            _ => RiskStatus.Medium
-        };
+        var state = Enum.TryParse<RiskStatus>(
+            resp.RiskStatus,
+            ignoreCase: true,
+            out var parsed)
+            ? parsed
+            : RiskStatus.Medium;
 
         return state;
     }
