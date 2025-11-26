@@ -69,8 +69,8 @@ BEGIN
     CREATE TABLE dbo.Transfers
     (
         TransferId     UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Transfers PRIMARY KEY,
-        FromAccountId  VARCHAR(34)      NOT NULL,
-        ToAccountId    VARCHAR(34)      NOT NULL,
+        FromIban       VARCHAR(34)      NOT NULL,
+        ToIban         VARCHAR(34)      NOT NULL,
         ReviewedBy     UNIQUEIDENTIFIER NULL,
         CreatedAt      DATETIME2(3)     NOT NULL CONSTRAINT DF_Transfers_CreatedAt DEFAULT SYSUTCDATETIME(),
         Status         VARCHAR(30)      NOT NULL,   -- Pending, Completed, Rejected, UnderReview
@@ -83,22 +83,22 @@ BEGIN
         CONSTRAINT CK_Transfers_Status
             CHECK (Status IN ('Pending','Completed','Rejected','UnderReview')),
         CONSTRAINT CK_Transfers_FromToDifferent
-            CHECK (FromAccountId <> ToAccountId),
+            CHECK (FromIban <> ToIban),
         CONSTRAINT CK_Currency_Transfers
             CHECK (Currency IN ('RON','USD','EUR')),
 
         CONSTRAINT FK_Transfers_FromAccount
-            FOREIGN KEY (FromAccountId) REFERENCES dbo.Accounts(IBAN)
+            FOREIGN KEY (FromIban) REFERENCES dbo.Accounts(IBAN)
             ON DELETE NO ACTION ON UPDATE NO ACTION,
         CONSTRAINT FK_Transfers_ToAccount
-            FOREIGN KEY (ToAccountId)   REFERENCES dbo.Accounts(IBAN)
+            FOREIGN KEY (ToIban)   REFERENCES dbo.Accounts(IBAN)
             ON DELETE NO ACTION ON UPDATE NO ACTION,
         CONSTRAINT FK_Transfers_ReviewedBy
             FOREIGN KEY (ReviewedBy)    REFERENCES dbo.Users(UserId)
             ON DELETE NO ACTION ON UPDATE NO ACTION
     );
-    CREATE INDEX IX_Transfers_FromAccountId ON dbo.Transfers(FromAccountId);
-    CREATE INDEX IX_Transfers_ToAccountId   ON dbo.Transfers(ToAccountId);
+    CREATE INDEX IX_Transfers_FromIban ON dbo.Transfers(FromIban);
+    CREATE INDEX IX_Transfers_ToIban   ON dbo.Transfers(ToIban);
     CREATE INDEX IX_Transfers_StatusCreated ON dbo.Transfers(Status, CreatedAt);
 END;
 GO

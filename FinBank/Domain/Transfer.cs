@@ -1,10 +1,12 @@
-﻿namespace Domain;
+﻿using Domain.Enums;
+
+namespace Domain;
 
 public class Transfer
 {
     public Guid TransferId { get; set; } // PK
-    public string FromAccountId { get; set; } = string.Empty;
-    public string ToAccountId { get; set; } = string.Empty; 
+    public string FromIban { get; set; } = string.Empty;
+    public string ToIban { get; set; } = string.Empty; 
     public Guid? ReviewedBy { get; set; } 
     public DateTime CreatedAt { get; set; }
     public TransferStatus Status { get; set; } = TransferStatus.Pending;
@@ -18,12 +20,4 @@ public class Transfer
     public Account? ToAccount { get; set; }
     public User? Reviewer { get; set; }
     public ICollection<IdempotencyKey> IdempotencyKeys { get; set; } = new List<IdempotencyKey>();
-}
-
-public enum TransferStatus
-{
-    Pending = 0,
-    Completed = 1,
-    Rejected = 2,
-    UnderReview = 3
 }
