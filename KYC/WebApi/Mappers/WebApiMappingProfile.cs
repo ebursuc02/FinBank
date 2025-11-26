@@ -11,7 +11,7 @@ public class WebApiMappingProfile : Profile
     public WebApiMappingProfile()
     {
         CreateMap<UserRiskDto, UserRiskResponseDto>()
-            .ForMember(dest => dest.RiskStatuses,
+            .ForMember(dest => dest.RiskStatus,
                 opt =>
                     opt.MapFrom(src => src.RiskStatus.ToString()));
     }
