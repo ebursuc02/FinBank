@@ -1,43 +1,27 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.OpenApi.Models;
 using Infrastructure;
 using Application;
 using Application.Security;
 using Application.Security.Interfaces;
-using Mediator.Abstractions;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddEnvironmentVariables();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+if (builder.Environment.IsDevelopment())
 {
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Enter 'Bearer {token}'"
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement{
-        {
-            new OpenApiSecurityScheme{ Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
-            new string[] {}
-        }
-    });
-});
+    builder.Configuration.AddUserSecrets<Program>(optional: true, reloadOnChange: true);
+}
 
+builder.Configuration.AddEnvironmentVariables();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddControllers();
 
-
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+var app = builder.Build();
+
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -57,8 +41,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
-
-var app = builder.Build();
+builder.Services.AddHttpClient();
 
 if (app.Environment.IsDevelopment())
 {
@@ -66,12 +49,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.MapHealthChecks("/health");
 }
-
 app.UseHttpsRedirection();
-
-// authentication & authorization must be before MapControllers
-app.UseAuthentication();
 app.UseAuthorization();
+app.UseAuthentication();
+app.MapControllers(); 
 
-app.MapControllers();
 app.Run();

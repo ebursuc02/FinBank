@@ -8,6 +8,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Domain\Domain.csproj" />
+<<<<<<< HEAD
+=======
+      <ProjectReference Include="..\..\Mediator\Mediator\Mediator.csproj" />
+>>>>>>> main
     </ItemGroup>
 
     <ItemGroup>
