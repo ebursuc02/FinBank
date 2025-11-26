@@ -18,7 +18,12 @@ public class RegisterUserCommandHandler(
 {
     public async Task<Result<UserDto>> HandleAsync(RegisterUserCommand command, CancellationToken cancellationToken)
     {
-    
+        var existingUser = await repository.GetAccountByEmailAsync(command.Email, cancellationToken);
+        if (existingUser is not null)
+        {
+            return Result.Fail<UserDto>("Email already in use.");  
+        }
+        
         // Create new user
         var user = new UserDto
         {
