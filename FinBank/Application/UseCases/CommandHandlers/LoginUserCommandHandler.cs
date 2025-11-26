@@ -34,8 +34,8 @@ public class LoginUserCommandHandler(
 
         var verification = passwordHasher.VerifyHashedPassword(
             userDto.Email,
-            userDto.Password, 
-            userDto.Password
+            userDto.Password,
+            command.Password
         );
 
         return verification == PasswordVerificationResult.Failed ? Result.Fail<UserDto>("Invalid email or password.") : Result.Ok(userDto);

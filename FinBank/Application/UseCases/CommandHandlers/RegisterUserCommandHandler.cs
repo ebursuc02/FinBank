@@ -16,7 +16,7 @@ public class RegisterUserCommandHandler(
     IUserRepository repository, IPasswordHasher<string> passwordHasher)
     : ICommandHandler<RegisterUserCommand, Result<UserDto>>
 {
-    public Task<Result<UserDto>> HandleAsync(RegisterUserCommand command, CancellationToken cancellationToken)
+    public async Task<Result<UserDto>> HandleAsync(RegisterUserCommand command, CancellationToken cancellationToken)
     {
     
         // Create new user
@@ -31,19 +31,10 @@ public class RegisterUserCommandHandler(
             Address = command.Address,
             Password = passwordHasher.HashPassword(command.Email, command.Password)
         };
-
-        Console.WriteLine(user);
-        // Hash the password
-
+        
         // Save user to repository
-        return repository.AddAsync(user, cancellationToken)
-            .ContinueWith(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    return Result.Fail<UserDto>("Failed to register user.");
-                }
-                return Result.Ok(user);
-            }, cancellationToken);
+        await repository.AddAsync(user, cancellationToken);
+        
+        return Result.Ok(user);
     }
 }

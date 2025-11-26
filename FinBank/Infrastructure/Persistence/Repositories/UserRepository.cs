@@ -28,8 +28,9 @@ public class UserRepository(FinBankDbContext db) : IUserRepository
             Password = userDto.Password
         };
         await db.Users.AddAsync(user, ct);
+        await db.SaveChangesAsync(ct);
     }
-
+    
     public async Task DeleteAsync(Guid commandUserId, CancellationToken cancellationToken)
     {
         var user = await db.Users.FirstOrDefaultAsync(x => x.UserId == commandUserId, cancellationToken);

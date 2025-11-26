@@ -23,9 +23,9 @@ builder.Services.AddApplication();
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-var app = builder.Build();
 
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty);
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -46,15 +46,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddHttpClient();
 
+var app = builder.Build();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
     app.MapHealthChecks("/health");
 }
+
 app.UseHttpsRedirection();
-app.UseAuthorization();
-app.UseAuthentication();
-app.MapControllers(); 
+
+app.UseAuthentication();  
+app.UseAuthorization();    
+
+app.MapControllers();
 
 app.Run();
