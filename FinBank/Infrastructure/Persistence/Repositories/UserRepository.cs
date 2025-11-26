@@ -16,4 +16,12 @@ public class UserRepository(FinBankDbContext db) : IUserRepository
     {
         await db.Users.AddAsync(user, ct);
     }
+
+    public async Task DeleteAsync(Guid commandUserId, CancellationToken cancellationToken)
+    {
+        var user = await db.Users.FirstOrDefaultAsync(x => x.UserId == commandUserId, cancellationToken);
+        if (user is null) return;
+        
+        db.Users.Remove(user);
+    }
 }

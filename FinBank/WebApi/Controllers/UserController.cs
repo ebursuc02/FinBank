@@ -8,7 +8,6 @@ using Domain;
 using FluentResults;
 using Mediator.Abstractions;
 using Microsoft.AspNetCore.Authorization;
-using WebApi.Models;
 
 
 namespace WebApi.Controllers;
@@ -51,23 +50,42 @@ public class Customer(IMediator mediator, IJwtTokenService jwt) : ControllerBase
             token
         });
     }
+
+    [HttpDelete("delete", Name = "DeleteUser")]
+    public async Task<ActionResult> DeleteUser(CancellationToken ct)
+    {
+        var userIdString =
+            User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ??
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        
+        if (!Guid.TryParse(userIdString, out var userId))
+            return Unauthorized("Invalid or missing userId in JWT");
+
+        var result = await mediator.SendCommandAsync<DeleteUserCommand, Result>(
+            new DeleteUserCommand(userId), ct);
+
+        if (result.IsFailed)
+            return BadRequest("Failed to delete user");
+        
+        return Ok("User delete successful");
+    }
     
-    // [Authorize]
+    [Authorize]
     [HttpGet("{userId:guid}", Name = "GetUserById")]
     public async Task<ActionResult<User>> GetUserById([FromRoute] Guid userId, CancellationToken ct)
     {
-        // var sub = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
-        //           ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        //
-        // if (string.IsNullOrEmpty(sub) || !Guid.TryParse(sub, out var tokenUserId))
-        // {
-        //     return Unauthorized();
-        // }
-        //
-        // if (tokenUserId != userId)
-        // {
-        //     return Forbid();
-        // }
+        var sub = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                  ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        
+        if (string.IsNullOrEmpty(sub) || !Guid.TryParse(sub, out var tokenUserId))
+        {
+            return Unauthorized();
+        }
+        
+        if (tokenUserId != userId)
+        {
+            return Forbid();
+        }
         
         var result = await mediator.SendQueryAsync<GetUserByIdQuery, User?>(
             new GetUserByIdQuery(userId), ct);
