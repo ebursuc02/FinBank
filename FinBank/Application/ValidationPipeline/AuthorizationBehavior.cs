@@ -14,10 +14,9 @@ public sealed class AuthorizationBehavior<TReq, TRes>(
         Func<Task<TRes>> next,
         CancellationToken ct)
     {
-        if (request is not CreateTransferCommand cmd)
-            return await next();
+        if (request is not CreateTransferCommand cmd) return await next();
         
-        var account = await repo.GetByIbanAsync(cmd.FromAccountId, ct);
+        var account = await repo.GetByIbanAsync(cmd.FromIban, ct);
 
         var ownershipApproved = account is not null && account.CustomerId == cmd.CustomerId;
         if (ownershipApproved)

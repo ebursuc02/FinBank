@@ -1,8 +1,11 @@
 
+using Application.DTOs;
 using Application.Interfaces.Kyc;
 using Application.Policies;
 using Application.UseCases.CommandHandlers;
 using Application.UseCases.Commands;
+using Application.UseCases.Queries;
+using Application.UseCases.QueryHandlers;
 using Application.ValidationPipeline;
 using FluentResults;
 using Mediator.Abstractions;
@@ -21,5 +24,6 @@ public static class DependencyInjection
             .AddScoped(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>))
             .AddScoped<ICommandHandler<CreateTransferCommand, Result>, CreateTransferCommandHandler>()
             .AddScoped<IRiskPolicyEvaluator, StatusRiskPolicyEvaluator>()
-            .AddScoped<IRiskContext, RiskContext>();
+            .AddScoped<IRiskContext, RiskContext>()
+            .AddScoped<IQueryHandler<GetTransfersQuery, Result<IEnumerable<TransferOverviewDto>>>,  GetTransfersQueryHandler>();
 }

@@ -45,7 +45,7 @@ DECLARE @t2 UNIQUEIDENTIFIER = NEWID();
 DECLARE @t3 UNIQUEIDENTIFIER = NEWID();
 
 INSERT INTO dbo.Transfers
-(TransferId, FromAccountId, ToAccountId, ReviewedBy, CreatedAt, Status, Amount, Currency, Reason, CompletedAt, PolicyVersion)
+(TransferId, FromIban, ToIban, ReviewedBy, CreatedAt, Status, Amount, Currency, Reason, CompletedAt, PolicyVersion)
 VALUES
 (@t1, @aliceEur, @bobEur,   NULL,         SYSUTCDATETIME(), 'Completed', 550.00, 'EUR', NULL,           SYSUTCDATETIME(), 'v1'),
 (@t2, @carolUsd, @aliceEur, @empReviewer, SYSUTCDATETIME(), 'Rejected',  999.99, 'USD', N'KYC Blocked', SYSUTCDATETIME(), 'v1'),

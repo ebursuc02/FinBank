@@ -8,11 +8,11 @@ public sealed class CreateTransferCommandValidator : AbstractValidator<CreateTra
     public CreateTransferCommandValidator()
     {
         RuleFor(x => x.CustomerId).NotEmpty();
-        RuleFor(x => x.FromAccountId) .NotEmpty();
+        RuleFor(x => x.FromIban) .NotEmpty();
 
-        RuleFor(x => x.ToAccountId)
+        RuleFor(x => x.ToIban)
             .NotEmpty()
-            .Must((cmd, v) => !string.Equals(v, cmd.FromAccountId, StringComparison.OrdinalIgnoreCase))
+            .Must((cmd, v) => !string.Equals(v, cmd.FromIban, StringComparison.OrdinalIgnoreCase))
             .WithMessage("From/To accounts must differ.");
 
         RuleFor(x => x.Amount)

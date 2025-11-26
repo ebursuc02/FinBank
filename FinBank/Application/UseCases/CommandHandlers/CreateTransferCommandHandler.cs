@@ -14,8 +14,8 @@ public sealed class CreateTransferCommandHandler(
 {
     public async Task<Result> HandleAsync(CreateTransferCommand cmd, CancellationToken ct)
     {
-        var senderAccount = accountRepository.GetByIbanAsync(cmd.FromAccountId, ct).Result;
-        var receiverAccount = accountRepository.GetByIbanAsync(cmd.ToAccountId, ct).Result;
+        var senderAccount = accountRepository.GetByIbanAsync(cmd.FromIban, ct).Result;
+        var receiverAccount = accountRepository.GetByIbanAsync(cmd.ToIban, ct).Result;
         
         if(receiverAccount is null) return Result.Fail("Receiver account does not exist."); 
         if(cmd.Amount > senderAccount!.Balance) return Result.Fail("No sufficient funds."); 
@@ -26,8 +26,8 @@ public sealed class CreateTransferCommandHandler(
         var transfer = new Transfer
         {
             TransferId = Guid.NewGuid(),
-            FromAccountId = cmd.FromAccountId,
-            ToAccountId   = cmd.ToAccountId,
+            FromIban = cmd.FromIban,
+            ToIban = cmd.ToIban,
             Amount = decimal.Round(cmd.Amount, 2, MidpointRounding.ToEven),
             Currency = cmd.Currency,
             Status = context.Decision,

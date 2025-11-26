@@ -7,7 +7,7 @@ namespace Infrastructure.Persistence.Repositories;
 public class AccountRepository(FinBankDbContext db) : IAccountRepository
 {
     public async Task<Account?> GetByIbanAsync(string iban, CancellationToken ct)
-        => await db.Accounts.AsNoTracking().FirstOrDefaultAsync(x => x.IBan == iban, ct);
+        => await db.Accounts.AsNoTracking().FirstOrDefaultAsync(x => x.Iban == iban, ct);
 
 
     public async Task<IReadOnlyList<Account>> GetByCustomerAsync(Guid customerId, CancellationToken ct)

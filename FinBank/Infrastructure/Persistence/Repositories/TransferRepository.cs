@@ -16,10 +16,11 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
     }
 
 
-    public async Task<IReadOnlyList<Transfer>> GetForAccountAsync(string iban, int take, CancellationToken ct)
+    public async Task<IReadOnlyList<Transfer>> GetForAccountAsync(string iban, int take, int skip, CancellationToken ct)
         => await db.Transfers.AsNoTracking()
-            .Where(x => x.FromAccountId == iban || x.ToAccountId == iban)
+            .Where(x => x.FromIban == iban || x.ToIban == iban)
             .OrderByDescending(x => x.CreatedAt)
+            .Skip(skip)
             .Take(take)
             .ToListAsync(ct);
 }

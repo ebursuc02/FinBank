@@ -9,7 +9,7 @@ public class Account
             ["RON"] = 5.08m,
             ["USD"] = 1.15m
         };
-    public string IBan { get; init; } = string.Empty; // PK
+    public string Iban { get; init; } = string.Empty; // PK
     public Guid CustomerId { get; init; }
     public DateTime CreatedAt { get; init; }
     public decimal Balance { get; set; } 
