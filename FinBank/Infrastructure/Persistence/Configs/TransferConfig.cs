@@ -11,7 +11,7 @@ public class TransferConfig : IEntityTypeConfiguration<Transfer>
         b.ToTable("Transfers", "dbo");
         b.HasKey(x => x.TransferId).HasName("PK_Transfers");
         
-        b.Property(x => x.FromIban).IsRequired().HasMaxLength(34);
+        b.Property(x => x.FromIban).HasMaxLength(34);
         b.Property(x => x.ToIban).IsRequired().HasMaxLength(34);
         b.Property(x => x.ReviewedBy).HasColumnName("ReviewedBy");
         b.Property(x => x.CreatedAt).IsRequired();
@@ -33,13 +33,13 @@ public class TransferConfig : IEntityTypeConfiguration<Transfer>
             .WithMany()
             .HasForeignKey(x => x.FromIban)
             .HasConstraintName("FK_Transfers_FromAccount")
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.SetNull); 
         
         b.HasOne(x => x.ToAccount)
             .WithMany()
             .HasForeignKey(x => x.ToIban)
             .HasConstraintName("FK_Transfers_ToAccount")
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.SetNull);
 
         b.HasOne(x => x.Reviewer)
             .WithMany()

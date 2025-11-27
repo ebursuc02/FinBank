@@ -69,8 +69,8 @@ BEGIN
     CREATE TABLE dbo.Transfers
     (
         TransferId     UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Transfers PRIMARY KEY,
-        FromIban       VARCHAR(34)      NOT NULL,
-        ToIban         VARCHAR(34)      NOT NULL,
+        FromIban       VARCHAR(34)      NULL,
+        ToIban         VARCHAR(34)      NULL,
         ReviewedBy     UNIQUEIDENTIFIER NULL,
         CreatedAt      DATETIME2(3)     NOT NULL CONSTRAINT DF_Transfers_CreatedAt DEFAULT SYSUTCDATETIME(),
         Status         VARCHAR(30)      NOT NULL,   -- Pending, Completed, Rejected, UnderReview
@@ -89,10 +89,10 @@ BEGIN
 
         CONSTRAINT FK_Transfers_FromAccount
             FOREIGN KEY (FromIban) REFERENCES dbo.Accounts(IBAN)
-            ON DELETE NO ACTION ON UPDATE NO ACTION,
+            ON DELETE SET NULL ON UPDATE NO ACTION,
         CONSTRAINT FK_Transfers_ToAccount
             FOREIGN KEY (ToIban)   REFERENCES dbo.Accounts(IBAN)
-            ON DELETE NO ACTION ON UPDATE NO ACTION,
+            ON DELETE SET NULL ON UPDATE NO ACTION,
         CONSTRAINT FK_Transfers_ReviewedBy
             FOREIGN KEY (ReviewedBy)    REFERENCES dbo.Users(UserId)
             ON DELETE NO ACTION ON UPDATE NO ACTION

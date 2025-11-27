@@ -31,7 +31,7 @@ public class AccountsController(IMediator mediator, IMapper mapper) : Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AccountSummaryResponseDto>>> GetAllAccounts(
+    public async Task<ActionResult<IEnumerable<AccountResponseDto>>> GetAllAccounts(
         [FromRoute] Guid customerId,
         CancellationToken ct)
     {
@@ -41,7 +41,7 @@ public class AccountsController(IMediator mediator, IMapper mapper) : Controller
         if (!result.IsSuccess)
             return BadRequest(result.Errors);
 
-        return Ok(result.Value.Select(mapper.Map<AccountSummaryResponseDto>));
+        return Ok(result.Value.Select(mapper.Map<AccountResponseDto>));
     }
 
     [HttpGet]
@@ -58,5 +58,21 @@ public class AccountsController(IMediator mediator, IMapper mapper) : Controller
             return BadRequest(result.Errors);
 
         return Ok(mapper.Map<AccountResponseDto>(result.Value));
+    }
+
+    [HttpDelete]
+    [Route("{accountIban}")]
+    public async Task<IActionResult> DeleteAccount(
+        [FromRoute] Guid customerId,
+        [FromRoute] string accountIban,
+        CancellationToken ct)
+    {
+        var command = new DeleteAccountCommand { CustomerId = customerId, AccountIban = accountIban };
+        var result = await mediator.SendCommandAsync<DeleteAccountCommand, Result>(command, ct);
+
+        if (!result.IsSuccess)
+            return BadRequest(result.Errors);
+
+        return NoContent();
     }
 }
