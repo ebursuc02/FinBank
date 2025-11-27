@@ -34,12 +34,12 @@ public class Customer(IMediator mediator, IJwtTokenService jwt) : ControllerBase
         var result = await mediator.SendCommandAsync<LoginUserCommand, Result<UserDto>>(command, ct);
 
         if (result.IsFailed)
-            return Unauthorized("Inavalid email or password");
+            return Unauthorized("Invalid email or password");
         
         var token = jwt.GenerateToken(result.Value);
         return Ok(new { message = "User logged in successfully", token });
     }
-
+    
     [HttpDelete("delete", Name = "DeleteUser")]
     public async Task<ActionResult> DeleteUser(CancellationToken ct)
     {
@@ -65,15 +65,18 @@ public class Customer(IMediator mediator, IJwtTokenService jwt) : ControllerBase
     {
         var sub = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
                   ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
+        
+        var role = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                   ?? User.FindFirst(ClaimTypes.Role)?.Value;
+        
         if (string.IsNullOrEmpty(sub) || !Guid.TryParse(sub, out var tokenUserId))
         {
             return Unauthorized();
         }
 
-        if (tokenUserId != userId)
+        if (tokenUserId != userId && role != "Employee")
         {
-            return Forbid();
+            userId = tokenUserId;
         }
 
         var result = await mediator.SendQueryAsync<GetUserByIdQuery, Result<UserDto>>(
