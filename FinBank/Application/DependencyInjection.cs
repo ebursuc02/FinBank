@@ -35,8 +35,8 @@ public static class DependencyInjection
             .AddScoped<ICommandHandler<CreateTransferCommand, Result>, CreateTransferCommandHandler>()
             .AddScoped<ICommandHandler<CreateAccountCommand, Result<AccountDto>>, CreateAccountCommandHandler>()
             .AddScoped<ICommandHandler<DeleteAccountCommand, Result>, DeleteAccountCommandHandler>()
-            .AddScoped<IQueryHandler<GetTransfersQuery, Result<IEnumerable<TransferOverviewDto>>>,
-                GetTransfersQueryHandler>()
+            .AddScoped<IQueryHandler<GetTransfersQuery, Result<IEnumerable<TransferDto>>>, GetTransfersQueryHandler>()
+            .AddScoped<IQueryHandler<GetTransferByIdQuery, Result<TransferDto>>, GetTransferByIdQueryHandler>()
             .AddScoped<IQueryHandler<GetAccountQuery, Result<AccountDto>>, GetAccountQueryHandler>()
             .AddScoped<IQueryHandler<GetAllAccountsQuery, Result<IEnumerable<AccountDto>>>,
                 GetAllAccountsQueryHandler>();
