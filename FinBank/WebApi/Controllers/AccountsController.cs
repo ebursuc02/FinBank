@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebApi.DTOs;
 using WebApi.DTOs.Request;
 using WebApi.DTOs.Response;
+using WebApi.FailHandeling;
 
 namespace WebApi.Controllers;
 
@@ -24,29 +25,24 @@ public class AccountsController(IMediator mediator, IMapper mapper) : Controller
         var command = new CreateAccountCommand { CustomerId = customerId, Currency = requestDto.Currency };
         var result = await mediator.SendCommandAsync<CreateAccountCommand, Result<AccountDto>>(command, ct);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Errors);
-
-        return Created();
+        return result.ToErrorResponseOrNull(this) ?? Created();
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AccountResponseDto>>> GetAllAccounts(
+    public async Task<IActionResult> GetAllAccounts(
         [FromRoute] Guid customerId,
         CancellationToken ct)
     {
         var result = await mediator.SendQueryAsync<GetAllAccountsQuery, Result<IEnumerable<AccountDto>>>(
             new GetAllAccountsQuery { CustomerId = customerId }, ct);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Errors);
-
-        return Ok(result.Value.Select(mapper.Map<AccountResponseDto>));
+        return result.ToErrorResponseOrNull(this) ??
+               Ok(result.Value.Select(mapper.Map<AccountResponseDto>));
     }
 
     [HttpGet]
     [Route("{accountIban}")]
-    public async Task<ActionResult<AccountResponseDto>> GetAccount(
+    public async Task<IActionResult> GetAccount(
         [FromRoute] Guid customerId,
         [FromRoute] string accountIban,
         CancellationToken ct)
@@ -54,25 +50,32 @@ public class AccountsController(IMediator mediator, IMapper mapper) : Controller
         var result = await mediator.SendQueryAsync<GetAccountQuery, Result<AccountDto>>(
             new GetAccountQuery { AccountIban = accountIban }, ct);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Errors);
-
-        return Ok(mapper.Map<AccountResponseDto>(result.Value));
+        return result.ToErrorResponseOrNull(this) ?? Ok(mapper.Map<AccountResponseDto>(result.Value));
     }
 
     [HttpDelete]
     [Route("{accountIban}")]
-    public async Task<IActionResult> DeleteAccount(
+    public async Task<IActionResult> CloseAccount(
         [FromRoute] Guid customerId,
         [FromRoute] string accountIban,
         CancellationToken ct)
     {
-        var command = new DeleteAccountCommand { CustomerId = customerId, AccountIban = accountIban };
-        var result = await mediator.SendCommandAsync<DeleteAccountCommand, Result>(command, ct);
+        var command = new CloseAccountCommand { CustomerId = customerId, AccountIban = accountIban };
+        var result = await mediator.SendCommandAsync<CloseAccountCommand, Result>(command, ct);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Errors);
+        return result.ToErrorResponseOrNull(this) ?? NoContent();
+    }
 
-        return NoContent();
+    [HttpPut]
+    [Route("{accountIban}/reopen")]
+    public async Task<IActionResult> ReopenAccount(
+        [FromRoute] Guid customerId,
+        [FromRoute] string accountIban,
+        CancellationToken ct)
+    {
+        var command = new ReOpenAccountCommand { CustomerId = customerId, AccountIban = accountIban };
+        var result = await mediator.SendCommandAsync<ReOpenAccountCommand, Result>(command, ct);
+
+        return result.ToErrorResponseOrNull(this) ?? NoContent();
     }
 }

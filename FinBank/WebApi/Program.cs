@@ -1,8 +1,8 @@
 using System.Text;
 using Infrastructure;
 using Application;
-using Application.Security;
-using Application.Security.Interfaces;
+using Application.Interfaces.Security;
+using Application.Services.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;

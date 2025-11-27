@@ -1,5 +1,6 @@
 using Application.DTOs;
 using Application.Interfaces.Repositories;
+using Application.Interfaces.Utils;
 using Application.UseCases.Commands;
 using AutoMapper;
 using Domain;
@@ -8,13 +9,15 @@ using FluentResults;
 
 namespace Application.UseCases.CommandHandlers;
 
-public class CreateAccountCommandHandler(IAccountRepository accountRepository, IMapper mapper)
+public class CreateAccountCommandHandler(
+    IIbanGenerator ibanGenerator,
+    IAccountRepository accountRepository,
+    IMapper mapper)
     : ICommandHandler<CreateAccountCommand, Result<AccountDto>>
 {
     public async Task<Result<AccountDto>> HandleAsync(CreateAccountCommand command, CancellationToken cancellationToken)
     {
-        // Generate a unique IBAN (simple example, replace with real logic as needed)
-        var iban = $"RO{DateTime.UtcNow.Ticks}{command.CustomerId.ToString().Substring(0, 6)}";
+        var iban = ibanGenerator.Generate(command.CustomerId);
 
         var account = new Account
         {

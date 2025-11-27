@@ -17,6 +17,7 @@ public class GetAllAccountsQueryHandler(
         CancellationToken ct)
     {
         var accounts = await repository.GetByCustomerAsync(query.CustomerId, ct);
-        return Result.Ok(accounts.Select(mapper.Map<AccountDto>));
+        var validAccounts = accounts.Where(account => !account.IsClosed).ToList();
+        return Result.Ok(validAccounts.Select(mapper.Map<AccountDto>));
     }
 }

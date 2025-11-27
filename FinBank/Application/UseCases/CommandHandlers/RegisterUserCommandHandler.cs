@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Input;
 using Application.DTOs;
 using Microsoft.AspNetCore.Identity;
+using Application.Errors;
 
 using Application.Interfaces.Repositories;
 using Application.UseCases.Commands.UserCommands;
@@ -21,7 +22,7 @@ public class RegisterUserCommandHandler(
         var existingUser = await repository.GetAccountByEmailAsync(command.Email, cancellationToken);
         if (existingUser is not null)
         {
-            return Result.Fail<UserDto>("Email already in use.");  
+            return Result.Fail<UserDto>(new ConflictError("Email already in use."));
         }
         
         // Create new user

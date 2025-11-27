@@ -1,3 +1,4 @@
+using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Commands.UserCommands;
 using FluentResults;
@@ -13,7 +14,7 @@ public class DeleteUserCommandHandler(IUserRepository repository):ICommandHandle
 
         if (user is null)
         {
-            return Result.Fail("User not found.");
+            return Result.Fail(new NotFoundError("User not found."));
         }
         
         await repository.DeleteAsync(command.UserId, cancellationToken);

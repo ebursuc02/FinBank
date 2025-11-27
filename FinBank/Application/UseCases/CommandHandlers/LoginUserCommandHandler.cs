@@ -1,4 +1,5 @@
 using Application.DTOs;
+using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Commands.UserCommands;
 using FluentResults;
@@ -18,7 +19,7 @@ public class LoginUserCommandHandler(
 
         if (user is null)
         {
-            return Result.Fail<UserDto>("Invalid email or password.");
+            return Result.Fail<UserDto>(new NotFoundError("Invalid email or password."));
         }
 
         var verification = passwordHasher.VerifyHashedPassword(
@@ -28,7 +29,7 @@ public class LoginUserCommandHandler(
         );
 
         if (verification == PasswordVerificationResult.Failed)
-            return Result.Fail<UserDto>("Invalid email or password.");
+            return Result.Fail<UserDto>(new UnauthorizedError("Invalid email or password."));
 
         var userDto = new UserDto
         {

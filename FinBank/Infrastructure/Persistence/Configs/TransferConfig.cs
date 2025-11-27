@@ -33,13 +33,13 @@ public class TransferConfig : IEntityTypeConfiguration<Transfer>
             .WithMany()
             .HasForeignKey(x => x.FromIban)
             .HasConstraintName("FK_Transfers_FromAccount")
-            .OnDelete(DeleteBehavior.SetNull); 
+            .OnDelete(DeleteBehavior.NoAction); 
         
         b.HasOne(x => x.ToAccount)
             .WithMany()
             .HasForeignKey(x => x.ToIban)
             .HasConstraintName("FK_Transfers_ToAccount")
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.NoAction);
 
         b.HasOne(x => x.Reviewer)
             .WithMany()

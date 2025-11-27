@@ -1,4 +1,5 @@
-﻿using Infrastructure.Options;
+﻿using Domain;
+using Infrastructure.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,6 +22,11 @@ internal static class OptionsRegistration
             .Validate(o => o.CommandTimeoutSeconds > 0, "Ef:CommandTimeoutSeconds must be > 0")
             .Validate(o => !o.EnableRetryOnFailure || o.MaxRetryCount >= 0, "Ef:MaxRetryCount must be >= 0")
             .Validate(o => !o.EnableRetryOnFailure || o.MaxRetryDelaySeconds >= 0, "Ef:MaxRetryDelaySeconds must be >= 0")
+            .ValidateOnStart();
+
+        services.AddOptions<BankConfig>()
+            .Bind(cfg.GetSection("Bank"))
+            .Validate(o => !string.IsNullOrWhiteSpace(o.CountryCode), "Bank:CountryCode is required")
             .ValidateOnStart();
 
         return services;

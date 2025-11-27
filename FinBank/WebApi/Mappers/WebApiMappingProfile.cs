@@ -11,7 +11,7 @@ public class WebApiMappingProfile : Profile
 {
     public WebApiMappingProfile()
     {
-        CreateMap<AccountResponseDto, AccountDto>();
+        CreateMap<AccountDto, AccountResponseDto>();
         CreateMap<CreateAccountRequestDto, CreateAccountCommand>();
     }
 }
