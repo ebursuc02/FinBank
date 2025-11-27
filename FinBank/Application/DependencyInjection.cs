@@ -3,7 +3,9 @@ using Application.Interfaces.Kyc;
 using Application.Mapping;
 using Application.Policies;
 using Application.UseCases.CommandHandlers;
+using Application.UseCases.CommandHandlers.TransferCommandHandlers;
 using Application.UseCases.Commands;
+using Application.UseCases.Commands.TransferCommands;
 using Application.UseCases.Commands.UserCommands;
 using Application.UseCases.Queries;
 using Application.UseCases.Queries.CustomerQueries;
@@ -32,6 +34,7 @@ public static class DependencyInjection
             .AddScoped<ICommandHandler<LoginUserCommand, Result<UserDto>>, LoginUserCommandHandler>()
             .AddScoped<ICommandHandler<DeleteUserCommand, Result>, DeleteUserCommandHandler>()
             .AddScoped<ICommandHandler<CreateTransferCommand, Result>, CreateTransferCommandHandler>()
+            .AddScoped<ICommandHandler<GetTransferApprovalByStatusCommand, Result<List<TransferDto>>>, GetTransferApprovalByStatusCommandHandler>()
             .AddScoped<IRiskPolicyEvaluator, StatusRiskPolicyEvaluator>()
             .AddScoped<IRiskContext, RiskContext>()
             .AddScoped<IQueryHandler<GetTransfersQuery, Result<IEnumerable<TransferDto>>>, GetTransfersQueryHandler>()

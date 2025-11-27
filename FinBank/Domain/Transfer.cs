@@ -6,7 +6,7 @@ public class Transfer
 {
     public Guid TransferId { get; set; } // PK
     public string FromIban { get; set; } = string.Empty;
-    public string ToIban { get; set; } = string.Empty; 
+    public string ToIban { get; set; } = string.Empty;
     public Guid? ReviewedBy { get; set; } 
     public DateTime CreatedAt { get; set; }
     public TransferStatus Status { get; set; } = TransferStatus.Pending;
@@ -20,4 +20,5 @@ public class Transfer
     public Account? ToAccount { get; set; }
     public User? Reviewer { get; set; }
     public ICollection<IdempotencyKey> IdempotencyKeys { get; set; } = new List<IdempotencyKey>();
+    
 }
