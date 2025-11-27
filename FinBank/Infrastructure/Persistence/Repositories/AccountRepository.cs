@@ -14,8 +14,7 @@ public class AccountRepository(FinBankDbContext db) : IAccountRepository
         => await db.Accounts.AsNoTracking()
             .Where(x => x.CustomerId == customerId)
             .ToListAsync(ct);
-
-
+    
     public async Task AddAsync(Account account, CancellationToken ct)
         => await db.Accounts.AddAsync(account, ct);
 
