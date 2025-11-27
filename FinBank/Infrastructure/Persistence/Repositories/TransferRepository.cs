@@ -24,11 +24,14 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync(ct);
 
-    public async Task<List<Transfer>> GetAccountsByStatus(TransferStatus status, CancellationToken ct)
+    public async Task<List<Transfer>> GetAccountsByStatus(TransferStatus? status, CancellationToken ct)
     {
-        return await db.Transfers
-            .AsNoTracking()
-            .Where(x => x.Status == status)
+        var query = db.Transfers.AsNoTracking().AsQueryable();
+        
+        if(status.HasValue)
+            query = query.Where(x => x.Status == status.Value);
+        
+        return await query
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync(ct);
     }

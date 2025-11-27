@@ -5,7 +5,7 @@ using Mediator.Abstractions;
 
 namespace Application.UseCases.Commands.TransferCommands;
 
-public class GetTransferApprovalByStatusCommand(TransferStatus  status):ICommand<Result<List<TransferDto>>>
+public class GetTransferApprovalByStatusQuery(TransferStatus?  status):IQuery<Result<List<TransferDto>>>
 {
-    public TransferStatus  Status => status;
+    public TransferStatus?  Status => status;
 }

@@ -7,7 +7,6 @@ using FluentResults;
 using Mediator.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.JSInterop;
 
 namespace WebApi.Controllers;
 
@@ -17,7 +16,7 @@ public class TransfersApprovalController(IMediator mediator):ControllerBase
 {
     [Authorize]
     [HttpGet("transfers")]
-    public async Task<ActionResult<Result<IList<TransferDto>>>> GetTransfersByStatus([FromQuery] TransferStatus status,
+    public async Task<ActionResult<Result<IList<TransferDto>>>> GetTransfersByStatus([FromQuery] TransferStatus? status,
         CancellationToken ct)
     {
         
@@ -29,8 +28,8 @@ public class TransfersApprovalController(IMediator mediator):ControllerBase
             return Unauthorized();
         }
         
-        var result = await mediator.SendCommandAsync<GetTransferApprovalByStatusCommand, Result<List<TransferDto>>>(
-            new GetTransferApprovalByStatusCommand(status), ct);
+        var result = await mediator.SendQueryAsync<GetTransferApprovalByStatusQuery, Result<List<TransferDto>>>(
+            new GetTransferApprovalByStatusQuery(status), ct);
 
         if (result.IsFailed)
         {

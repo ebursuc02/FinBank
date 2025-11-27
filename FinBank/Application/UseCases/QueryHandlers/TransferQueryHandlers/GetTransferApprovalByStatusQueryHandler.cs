@@ -6,12 +6,12 @@ using Mediator.Abstractions;
 
 namespace Application.UseCases.CommandHandlers.TransferCommandHandlers;
 
-public class GetTransferApprovalByStatusCommandHandler(ITransferRepository repository):ICommandHandler<
-    GetTransferApprovalByStatusCommand, Result<List<TransferDto>>>
+public class GetTransferApprovalByStatusQueryHandler(ITransferRepository repository):IQueryHandler<
+    GetTransferApprovalByStatusQuery, Result<List<TransferDto>>>
 {
-    public async Task<Result<List<TransferDto>>> HandleAsync(GetTransferApprovalByStatusCommand command, CancellationToken cancellationToken)
+    public async Task<Result<List<TransferDto>>> HandleAsync(GetTransferApprovalByStatusQuery query, CancellationToken cancellationToken)
     {
-        var transfers = await repository.GetAccountsByStatus(command.Status, cancellationToken);
+        var transfers = await repository.GetAccountsByStatus(query.Status, cancellationToken);
 
         if (transfers.Count == 0)
         {
