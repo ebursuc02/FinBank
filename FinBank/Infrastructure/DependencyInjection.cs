@@ -21,7 +21,8 @@ public static class DependencyInjection
         services.AddInfrastructureOptions(cfg)
             .AddInfrastructurePersistence()
             .AddInfrastructureRepositories()
-            .AddInfrastructureHealthChecks();
+            .AddInfrastructureHealthChecks()
+            .AddInfrastructureSwagger();
         return services;
     }
 }

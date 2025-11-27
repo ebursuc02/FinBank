@@ -1,8 +1,14 @@
+using System.Text;
 using Infrastructure;
 using Application;
+using Application.Security;
+using Application.Security.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using WebApi.Mappers;
+using Microsoft.OpenApi.Models;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,21 +20,28 @@ if (builder.Environment.IsDevelopment())
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddAutoMapper(_ => { }, typeof(WebApiMappingProfile).Assembly);
 builder.Services.AddControllers();
 
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(o =>
+    .AddJwtBearer(options =>
     {
-        o.Authority = builder.Configuration["Authentication:Authority"]; // set later
-        o.TokenValidationParameters = new TokenValidationParameters
+        options.RequireHttpsMetadata = true;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidAudience = builder.Configuration["Authentication:Audience"],
-            ValidateAudience = true, ValidateIssuer = true, ValidateLifetime = true
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateLifetime = true
         };
     });
 
@@ -43,9 +56,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.MapHealthChecks("/health");
 }
+
 app.UseHttpsRedirection();
-app.UseAuthorization();
+
 app.UseAuthentication();
-app.MapControllers(); 
+app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();
