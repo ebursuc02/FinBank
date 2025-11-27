@@ -1,7 +1,7 @@
 using Application.UseCases.Commands.UserCommands;
 using FluentValidation;
 
-namespace Application.UseCases.CommandValidator;
+namespace Application.UseCases.CommandValidators;
 
 public class RegisterUserCommandValidator: AbstractValidator<RegisterUserCommand>
 {

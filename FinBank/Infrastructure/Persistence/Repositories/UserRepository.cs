@@ -14,19 +14,8 @@ public class UserRepository(FinBankDbContext db) : IUserRepository
     public async Task<User?> GetAccountByEmailAsync(string email, CancellationToken ct)
         => await db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email, ct);
     
-    public async Task AddAsync(UserDto userDto, CancellationToken ct)
+    public async Task AddAsync(User user, CancellationToken ct)
     {
-        var user = new User
-        {
-            UserId = userDto.UserId,
-            Email = userDto.Email,
-            Name = userDto.Name,
-            PhoneNumber = userDto.PhoneNumber,
-            Country = userDto.Country,
-            Birthday = userDto.Birthday,
-            Address = userDto.Address,
-            Password = userDto.Password
-        };
         await db.Users.AddAsync(user, ct);
         await db.SaveChangesAsync(ct);
     }

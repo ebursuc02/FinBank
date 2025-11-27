@@ -2,6 +2,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Application.DTOs;
 using Application.Security.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -20,7 +21,7 @@ public class JwtTokenService : IJwtTokenService
         _key = Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key missing"));
     }
 
-    public string GenerateToken(User user)
+    public string GenerateToken(UserDto user)
     {
         var claims = new[]
         {

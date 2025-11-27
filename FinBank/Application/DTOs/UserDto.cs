@@ -3,7 +3,7 @@ namespace Application.DTOs;
 public class UserDto
 {
     public required string Email { get; init; }
-    public string Password { get; init; } = string.Empty;
+    public string Role { get; set; }
     public Guid UserId { get; init; }
     public string Name { get; init; } = string.Empty;
     public string PhoneNumber { get; init; } = string.Empty;

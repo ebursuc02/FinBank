@@ -25,10 +25,11 @@ public class RegisterUserCommandHandler(
         }
         
         // Create new user
-        var user = new UserDto
+        var user = new User
         {
             UserId = Guid.NewGuid(),
             Email = command.Email,
+            Role = "Customer",
             Name = command.Name,
             PhoneNumber = command.PhoneNumber,
             Country = command.Country,
@@ -40,6 +41,18 @@ public class RegisterUserCommandHandler(
         // Save user to repository
         await repository.AddAsync(user, cancellationToken);
         
-        return Result.Ok(user);
+        var userDto = new UserDto
+        {
+            UserId = user.UserId,
+            Email = user.Email,
+            Name = user.Name,
+            PhoneNumber = user.PhoneNumber,
+            Country = user.Country,
+            Birthday = user.Birthday,
+            Address = user.Address,
+            Role = user.Role
+        };    
+        
+        return Result.Ok(userDto);
     }
 }

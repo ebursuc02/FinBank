@@ -8,18 +8,28 @@ using Microsoft.AspNetCore.Identity;
 namespace Application.UseCases.CommandHandlers;
 
 public class LoginUserCommandHandler(
-    IUserRepository repository, IPasswordHasher<string> passwordHasher)
-    :ICommandHandler<LoginUserCommand, Result<UserDto>>
+    IUserRepository repository,
+    IPasswordHasher<string> passwordHasher)
+    : ICommandHandler<LoginUserCommand, Result<UserDto>>
 {
     public async Task<Result<UserDto>> HandleAsync(LoginUserCommand command, CancellationToken cancellationToken)
     {
         var user = await repository.GetAccountByEmailAsync(command.Email, cancellationToken);
-        
-        if (user is  null)
+
+        if (user is null)
         {
             return Result.Fail<UserDto>("Invalid email or password.");
         }
-        
+
+        var verification = passwordHasher.VerifyHashedPassword(
+            user.Email,
+            user.Password,
+            command.Password
+        );
+
+        if (verification == PasswordVerificationResult.Failed)
+            return Result.Fail<UserDto>("Invalid email or password.");
+
         var userDto = new UserDto
         {
             UserId = user.UserId,
@@ -29,15 +39,9 @@ public class LoginUserCommandHandler(
             Country = user.Country,
             Birthday = user.Birthday,
             Address = user.Address,
-            Password = user.Password
+            Role = user.Role
         };
 
-        var verification = passwordHasher.VerifyHashedPassword(
-            userDto.Email,
-            userDto.Password,
-            command.Password
-        );
-
-        return verification == PasswordVerificationResult.Failed ? Result.Fail<UserDto>("Invalid email or password.") : Result.Ok(userDto);
+        return Result.Ok(userDto);
     }
 }
