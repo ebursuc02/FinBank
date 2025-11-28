@@ -1,12 +1,17 @@
+using System.Security.Claims;
 using System.Text;
 using Infrastructure;
 using Application;
-using Application.Security;
-using Application.Security.Interfaces;
+using Application.Interfaces.Security;
+using Application.Services.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.IdentityModel.Tokens;
+using WebApi.Mappers;
 using Microsoft.OpenApi.Models;
+using WebApi.Authorization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,10 +25,10 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
+builder.Services.AddAutoMapper(_ => { }, typeof(WebApiMappingProfile).Assembly);
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -39,9 +44,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(key),
-            ValidateLifetime = true
+            ValidateLifetime = true,
+            RoleClaimType = ClaimTypes.Role
         };
     });
+
+builder.Services.AddAuthorizationBuilder()
+    .AddOwnerOfUserPolicy(AuthorizationPolicies.OwnerOfUserPolicy, "customerId");
 
 builder.Services.AddAuthorization();
 builder.Services.AddHttpClient();

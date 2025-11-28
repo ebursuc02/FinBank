@@ -5,7 +5,7 @@ namespace Domain;
 public class Transfer
 {
     public Guid TransferId { get; set; } // PK
-    public string FromIban { get; set; } = string.Empty;
+    public string FromIban { get; set; } = string.Empty; 
     public string ToIban { get; set; } = string.Empty; 
     public Guid? ReviewedBy { get; set; } 
     public DateTime CreatedAt { get; set; }

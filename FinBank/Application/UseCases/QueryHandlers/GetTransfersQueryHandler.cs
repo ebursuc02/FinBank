@@ -14,7 +14,7 @@ public class GetTransfersQueryHandler(
 {
     public async Task<Result<IEnumerable<TransferDto>>> HandleAsync(
         GetTransfersQuery query,
-        CancellationToken ct = default)
+        CancellationToken ct)
     {
         var transfers = await transferRepository.GetForAccountAsync(
             query.Iban,

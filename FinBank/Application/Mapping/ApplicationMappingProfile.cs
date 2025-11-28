@@ -8,6 +8,7 @@ public class ApplicationMappingProfile : Profile
 {
     public ApplicationMappingProfile()
     {
+        CreateMap<Account, AccountDto>();
         CreateMap<Transfer, TransferDto>().ReverseMap();
     }
 }

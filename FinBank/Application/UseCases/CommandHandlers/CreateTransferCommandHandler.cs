@@ -1,8 +1,9 @@
-﻿using Application.Interfaces.Kyc;
+﻿using Application.Errors;
+using FluentResults;
+using Application.Interfaces.Kyc;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Commands;
 using Domain;
-using FluentResults;
 using Mediator.Abstractions;
 
 namespace Application.UseCases.CommandHandlers;
@@ -14,13 +15,14 @@ public sealed class CreateTransferCommandHandler(
 {
     public async Task<Result> HandleAsync(CreateTransferCommand cmd, CancellationToken ct)
     {
-        var senderAccount = accountRepository.GetByIbanAsync(cmd.Iban, ct).Result;
-        var receiverAccount = accountRepository.GetByIbanAsync(cmd.ToIban, ct).Result;
+        var senderAccount = await accountRepository.GetByIbanAsync(cmd.Iban, ct);
+        var receiverAccount = await accountRepository.GetByIbanAsync(cmd.ToIban, ct);
         
-        if(receiverAccount is null) return Result.Fail("Receiver account does not exist."); 
-        if(cmd.Amount > senderAccount!.Balance) return Result.Fail("No sufficient funds."); 
+        if(receiverAccount is null) return Result.Fail(new NotFoundError("Receiver account does not exist.")); 
+        if(senderAccount == null) return Result.Fail(new NotFoundError("Sender account does not exist."));
+        if(cmd.Amount > senderAccount.Balance) return Result.Fail(new ValidationError("No sufficient funds.")); 
         
-        if(riskContext.Current is null) return Result.Fail("Risk could not be evaluated.");
+        if(riskContext.Current is null) return Result.Fail(new UnexpectedError("Risk could not be evaluated."));
         var context = riskContext.Current;
         
         var transfer = new Transfer
@@ -36,7 +38,7 @@ public sealed class CreateTransferCommandHandler(
             CreatedAt = DateTime.UtcNow,
         };
         
-        senderAccount!.ApplyTransfer(-transfer.Amount, transfer.Currency);
+        senderAccount.ApplyTransfer(-transfer.Amount, transfer.Currency);
         receiverAccount.ApplyTransfer(transfer.Amount, transfer.Currency);
         
         await accountRepository.UpdateAsync(senderAccount, ct);
@@ -45,4 +47,3 @@ public sealed class CreateTransferCommandHandler(
         return Result.Ok();
     }
 }
-

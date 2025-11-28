@@ -1,4 +1,5 @@
 using Application.DTOs;
+using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Queries.CustomerQueries;
 using Domain;
@@ -14,10 +15,11 @@ public class GetUserByIdQueryHandler(
     public async Task<Result<UserDto>> HandleAsync(GetUserByIdQuery query, CancellationToken ct)
     {
         var user = await repository.GetAsync(query.UserId, ct);
-
+        if (user is null)
+            return Result.Fail<UserDto>(new NotFoundError("User not found"));
         var userDto = new UserDto
         {
-            UserId = user!.UserId,
+            UserId = user.UserId,
             Email = user.Email,
             Name = user.Name,
             PhoneNumber = user.PhoneNumber,
@@ -26,6 +28,6 @@ public class GetUserByIdQueryHandler(
             Address = user.Address,
             Role = user.Role
         };
-        return userDto;
+        return Result.Ok(userDto);
     }
 }

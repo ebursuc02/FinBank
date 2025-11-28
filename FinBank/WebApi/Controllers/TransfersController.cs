@@ -4,6 +4,7 @@ using Application.UseCases.Queries;
 using FluentResults;
 using Mediator.Abstractions;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.FailHandeling;
 
 namespace WebApi.Controllers;
 
@@ -23,12 +24,7 @@ public class TransfersController(IMediator mediator) : ControllerBase
 
         var result = await mediator.SendCommandAsync<CreateTransferCommand, Result>(command, ct);
 
-        if (!result.IsSuccess)
-        {
-            return BadRequest(result.Errors);
-        }
-
-        return Created();
+        return result.ToErrorResponseOrNull(this) ??Created();
     }
     
     [HttpGet]
@@ -40,10 +36,7 @@ public class TransfersController(IMediator mediator) : ControllerBase
         var result = await mediator.SendQueryAsync<GetTransfersQuery, Result<IEnumerable<TransferDto>>>(
             new GetTransfersQuery{CustomerId = customerId, Iban = accountIban}, ct);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Errors);
-
-        return Ok(result.Value);
+        return result.ToErrorResponseOrNull(this) ??Ok(result.Value);
     }
     
     [HttpGet("{transferId:Guid}")]
@@ -56,10 +49,7 @@ public class TransfersController(IMediator mediator) : ControllerBase
         var result = await mediator.SendQueryAsync<GetTransferByIdQuery, Result<TransferDto>>(
             new GetTransferByIdQuery{CustomerId = customerId, Iban = accountIban, TransferId = transferId}, ct);
 
-        if (!result.IsSuccess)
-             return BadRequest(result.Errors);
-
-        return Ok(result.Value);
+        return result.ToErrorResponseOrNull(this) ??Ok(result.Value);
     }
 
 }
