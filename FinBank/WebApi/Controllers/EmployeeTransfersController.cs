@@ -1,5 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Application.DTOs;
 using Application.UseCases.Commands;
 using Application.UseCases.Commands.TransferCommands;
@@ -13,7 +11,7 @@ namespace WebApi.Controllers;
 
 [Route("api/v1/transfers")]
 [ApiController]
-// [Authorize(Roles = "Employee")]
+// [Authorize(Roles = "Employee")] <- will uncomment after merge with main branch
 public class EmployeeTransfersController(IMediator mediator) : ControllerBase
 {
     [HttpGet("transfers")]
@@ -39,6 +37,21 @@ public class EmployeeTransfersController(IMediator mediator) : ControllerBase
     {
         var result = await mediator.SendCommandAsync<AcceptTransferCommand, Result>(
             new AcceptTransferCommand(transferId), ct);
+
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Errors);
+        }
+        
+        return NoContent();
+    }
+    
+    [HttpPatch("{transferId:guid}/deny")]
+    public async Task<IActionResult> DenyTransaction(
+        Guid transferId, [FromBody] string? reason, CancellationToken ct)
+    {
+        var result = await mediator.SendCommandAsync<DenyTransferCommand, Result>(
+            new DenyTransferCommand(transferId, reason), ct);
 
         if (result.IsFailed)
         {

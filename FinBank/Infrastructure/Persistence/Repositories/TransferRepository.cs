@@ -1,5 +1,4 @@
-﻿using Application.DTOs;
-using Application.Interfaces.Repositories;
+﻿using Application.Interfaces.Repositories;
 using Domain;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;

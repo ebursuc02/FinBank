@@ -5,7 +5,7 @@ using Domain;
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.UseCases.CommandHandlers;
+namespace Application.UseCases.CommandHandlers.TransferCommandHandlers;
 
 public sealed class CreateTransferCommandHandler(
     IRiskContext riskContext, 

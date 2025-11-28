@@ -35,6 +35,7 @@ public static class DependencyInjection
             .AddScoped<ICommandHandler<DeleteUserCommand, Result>, DeleteUserCommandHandler>()
             .AddScoped<ICommandHandler<CreateTransferCommand, Result>, CreateTransferCommandHandler>()
             .AddScoped<ICommandHandler<AcceptTransferCommand, Result>, AcceptTransferCommandHandler>()
+            .AddScoped<ICommandHandler<DenyTransferCommand, Result>, DenyTransferCommandHandler>()
             .AddScoped<IQueryHandler<GetTransferApprovalByStatusQuery, Result<List<TransferDto>>>, GetTransferApprovalByStatusQueryHandler>()
             .AddScoped<IRiskPolicyEvaluator, StatusRiskPolicyEvaluator>()
             .AddScoped<IRiskContext, RiskContext>()
