@@ -10,4 +10,6 @@ public interface ITransferRepository
     Task AddAsync(Transfer transfer, CancellationToken ct);
     Task<IReadOnlyList<Transfer>> GetForAccountAsync(string iban, CancellationToken ct);
     Task<List<Transfer>> GetAccountsByStatus(TransferStatus?  status, CancellationToken ct);
+    Task AcceptTransferAsync(Guid transferId, CancellationToken ct);
+    Task DenyTransferAsync(Guid transferId, string? reason, CancellationToken ct);
 }

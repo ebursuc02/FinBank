@@ -35,4 +35,41 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync(ct);
     }
+
+    public async Task AcceptTransferAsync(Guid transferId, CancellationToken ct)
+    {
+        var transfer = await db.Transfers
+            .FirstOrDefaultAsync(x => x.TransferId == transferId, ct);
+        
+        if (transfer is null)
+            throw new InvalidOperationException($"Transfer {transferId} not found.");
+        
+        if (transfer.Status != TransferStatus.Pending)
+            throw new InvalidOperationException(
+                $"Only transfers with status '{TransferStatus.Pending}' can be accepted.");
+        
+        transfer.Status = TransferStatus.Completed;
+        transfer.CompletedAt = DateTime.UtcNow;
+        
+        await db.SaveChangesAsync(ct);
+    }
+    
+    public async Task DenyTransferAsync(Guid transferId, string? reason, CancellationToken ct)
+    {
+        var transfer = await db.Transfers
+            .FirstOrDefaultAsync(x => x.TransferId == transferId, ct);
+
+        if (transfer is null)
+            throw new InvalidOperationException($"Transfer {transferId} not found.");
+
+        if (transfer.Status != TransferStatus.Pending)
+            throw new InvalidOperationException(
+                $"Only transfers with status '{TransferStatus.Pending}' can be denied.");
+
+        transfer.Status = TransferStatus.Rejected;
+        transfer.Reason = reason;                     
+        transfer.CompletedAt = DateTime.UtcNow;
+
+        await db.SaveChangesAsync(ct);
+    }
 }
