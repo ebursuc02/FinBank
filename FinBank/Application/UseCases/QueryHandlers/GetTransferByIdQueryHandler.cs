@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Queries;
 using AutoMapper;
@@ -15,6 +16,8 @@ public class GetTransferByIdQueryHandler(
     public async Task<Result<TransferDto>> HandleAsync(GetTransferByIdQuery query, CancellationToken ct)
     {
         var transfer = await transferRepository.GetAsync(query.TransferId, ct);
-        return mapper.Map<TransferDto>(transfer);
+        if (transfer is null)
+            return Result.Fail<TransferDto>(new NotFoundError("Transfer not found"));
+        return Result.Ok(mapper.Map<TransferDto>(transfer));
     }
 }

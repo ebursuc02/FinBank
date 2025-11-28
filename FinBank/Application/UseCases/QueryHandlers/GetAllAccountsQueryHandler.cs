@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Queries;
 using AutoMapper;
@@ -18,6 +19,8 @@ public class GetAllAccountsQueryHandler(
     {
         var accounts = await repository.GetByCustomerAsync(query.CustomerId, ct);
         var validAccounts = accounts.Where(account => !account.IsClosed).ToList();
+        if (!validAccounts.Any())
+            return Result.Fail<IEnumerable<AccountDto>>(new NotFoundError("No open accounts found for this customer"));
         return Result.Ok(validAccounts.Select(mapper.Map<AccountDto>));
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Application.DTOs;
+using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Queries;
 using AutoMapper;
@@ -19,12 +20,12 @@ public class GetAccountQueryHandler(
     {
         var account = await repository.GetByIbanAsync(query.AccountIban, ct);
         if (account is null)
-            return Result.Fail<AccountDto>(new Error("Account not found")
+            return Result.Fail<AccountDto>(new NotFoundError("Account not found")
                 .WithMetadata("StatusCode", HttpStatusCode.NotFound)
             );
 
         if (account.IsClosed)
-            return Result.Fail<AccountDto>("Account is closed");
+            return Result.Fail<AccountDto>(new NotFoundError("Account is closed"));
 
         return Result.Ok(mapper.Map<AccountDto>(account));
     }

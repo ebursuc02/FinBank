@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Infrastructure;
 using Application;
@@ -5,9 +6,11 @@ using Application.Interfaces.Security;
 using Application.Services.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.IdentityModel.Tokens;
 using WebApi.Mappers;
 using Microsoft.OpenApi.Models;
+using WebApi.Authorization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,9 +44,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(key),
-            ValidateLifetime = true
+            ValidateLifetime = true,
+            RoleClaimType = ClaimTypes.Role
         };
     });
+
+builder.Services.AddAuthorizationBuilder()
+    .AddOwnerOfUserPolicy(AuthorizationPolicies.OwnerOfUserPolicy, "customerId");
 
 builder.Services.AddAuthorization();
 builder.Services.AddHttpClient();

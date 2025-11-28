@@ -2,10 +2,12 @@
 using Application.UseCases.Commands;
 using Application.UseCases.Queries;
 using AutoMapper;
+using Domain;
 using FluentResults;
 using Mediator.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApi.DTOs;
+using WebApi.Authorization;
 using WebApi.DTOs.Request;
 using WebApi.DTOs.Response;
 using WebApi.FailHandeling;
@@ -16,6 +18,7 @@ namespace WebApi.Controllers;
 [ApiController]
 public class AccountsController(IMediator mediator, IMapper mapper) : ControllerBase
 {
+    [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpPost]
     public async Task<IActionResult> CreateAccount(
         [FromBody] CreateAccountRequestDto requestDto,
@@ -29,6 +32,7 @@ public class AccountsController(IMediator mediator, IMapper mapper) : Controller
     }
 
     [HttpGet]
+    [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     public async Task<IActionResult> GetAllAccounts(
         [FromRoute] Guid customerId,
         CancellationToken ct)
@@ -40,6 +44,7 @@ public class AccountsController(IMediator mediator, IMapper mapper) : Controller
                Ok(result.Value.Select(mapper.Map<AccountResponseDto>));
     }
 
+    [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpGet]
     [Route("{accountIban}")]
     public async Task<IActionResult> GetAccount(
@@ -53,6 +58,7 @@ public class AccountsController(IMediator mediator, IMapper mapper) : Controller
         return result.ToErrorResponseOrNull(this) ?? Ok(mapper.Map<AccountResponseDto>(result.Value));
     }
 
+    [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpDelete]
     [Route("{accountIban}")]
     public async Task<IActionResult> CloseAccount(
@@ -66,6 +72,7 @@ public class AccountsController(IMediator mediator, IMapper mapper) : Controller
         return result.ToErrorResponseOrNull(this) ?? NoContent();
     }
 
+    [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpPut]
     [Route("{accountIban}/reopen")]
     public async Task<IActionResult> ReopenAccount(
