@@ -13,6 +13,7 @@ public class AccountConfig : IEntityTypeConfiguration<Account>
 
         b.Property(x => x.Iban).HasColumnName("IBAN").IsRequired().HasMaxLength(34);
         b.Property(x => x.CustomerId).IsRequired();
+        b.Property(x => x.IsClosed).HasDefaultValue(false);
         b.Property(x => x.CreatedAt).IsRequired();
         b.Property(x => x.Currency).IsRequired().HasMaxLength(3).IsFixedLength();
 

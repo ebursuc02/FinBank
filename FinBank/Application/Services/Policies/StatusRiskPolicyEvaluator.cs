@@ -1,7 +1,7 @@
 ﻿using Application.Interfaces.Kyc;
 using Domain.Enums;
 
-namespace Application.Policies;
+namespace Application.Services.Policies;
 
 public sealed class StatusRiskPolicyEvaluator : IRiskPolicyEvaluator
 {

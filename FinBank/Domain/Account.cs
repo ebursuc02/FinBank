@@ -11,6 +11,7 @@ public class Account
         };
     public string Iban { get; init; } = string.Empty; // PK
     public Guid CustomerId { get; init; }
+    public bool IsClosed { get; set; }
     public DateTime CreatedAt { get; init; }
     public decimal Balance { get; set; } 
     public string Currency { get; init; } = string.Empty; // CHAR(3)

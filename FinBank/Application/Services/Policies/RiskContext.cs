@@ -1,6 +1,6 @@
 ﻿using Application.Interfaces.Kyc;
 
-namespace Application.Policies;
+namespace Application.Services.Policies;
 
 public sealed class RiskContext : IRiskContext
 {

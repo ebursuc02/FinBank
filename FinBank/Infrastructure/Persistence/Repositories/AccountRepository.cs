@@ -21,4 +21,10 @@ public class AccountRepository(FinBankDbContext db) : IAccountRepository
     public Task UpdateAsync(Account account, CancellationToken ct)
         => Task.FromResult(db.Accounts.Update(account));
         
+    public async Task DeleteAsync(string accountIban, CancellationToken ct)
+    {
+        var account = await db.Accounts.FirstOrDefaultAsync(x => x.Iban == accountIban, ct);
+        if (account != null)
+            db.Accounts.Remove(account);
+    }
 }
