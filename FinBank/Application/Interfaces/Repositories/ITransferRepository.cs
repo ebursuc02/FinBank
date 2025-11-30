@@ -1,4 +1,5 @@
-﻿using Application.UseCases.Commands.TransferCommands;
+﻿using Application.DTOs;
+using Application.UseCases.Commands.TransferCommands;
 using Domain;
 using Domain.Enums;
 
@@ -12,4 +13,5 @@ public interface ITransferRepository
     Task<List<Transfer>> GetAccountsByStatus(TransferStatus?  status, CancellationToken ct);
     Task AcceptTransferAsync(Guid transferId, CancellationToken ct);
     Task DenyTransferAsync(Guid transferId, string? reason, CancellationToken ct);
+    Task<List<Transfer>> GetTransfersByCustomerIdOrStatusAsync(Guid? queryCustomerId, TransferStatus? queryStatus, CancellationToken cancellationToken);
 }

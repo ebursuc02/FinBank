@@ -9,6 +9,7 @@ using Application.UseCases.Commands.TransferCommands;
 using Application.UseCases.Commands.UserCommands;
 using Application.UseCases.Queries;
 using Application.UseCases.Queries.CustomerQueries;
+using Application.UseCases.Queries.TransferQueries;
 using Application.UseCases.QueryHandlers;
 using Application.ValidationPipeline;
 using Domain;
@@ -36,10 +37,11 @@ public static class DependencyInjection
             .AddScoped<ICommandHandler<CreateTransferCommand, Result>, CreateTransferCommandHandler>()
             .AddScoped<ICommandHandler<AcceptTransferCommand, Result>, AcceptTransferCommandHandler>()
             .AddScoped<ICommandHandler<DenyTransferCommand, Result>, DenyTransferCommandHandler>()
-            .AddScoped<IQueryHandler<GetTransferApprovalByStatusQuery, Result<List<TransferDto>>>, GetTransferApprovalByStatusQueryHandler>()
+            .AddScoped<IQueryHandler<GetTransfersByStatusQuery, Result<List<TransferDto>>>, GetTransfersByStatusQueryHandler>()
             .AddScoped<IRiskPolicyEvaluator, StatusRiskPolicyEvaluator>()
             .AddScoped<IRiskContext, RiskContext>()
             .AddScoped<IQueryHandler<GetTransfersQuery, Result<IEnumerable<TransferDto>>>, GetTransfersQueryHandler>()
             .AddScoped<IQueryHandler<GetTransferByIdQuery, Result<TransferDto>>, GetTransferByIdQueryHandler>()
+            .AddScoped<IQueryHandler<GetTransfersByCustomerIdOrStatusQuery, Result<List<TransferDto>>>, GetTransfersByCustomerIdOrStatusQueryHandler>()
             .AddAutoMapper(_ => { }, typeof(ApplicationMappingProfile).Assembly);
 }

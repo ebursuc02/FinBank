@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Repositories;
+﻿using Application.DTOs;
+using Application.Interfaces.Repositories;
 using Domain;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -71,4 +72,35 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
 
         await db.SaveChangesAsync(ct);
     }
+
+    public async Task<List<Transfer>> GetTransfersByCustomerIdOrStatusAsync(
+        Guid? customerId,
+        TransferStatus? status,
+        CancellationToken ct)
+    {
+        var query = db.Transfers
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (customerId.HasValue)
+        {
+            var id = customerId.Value;
+
+            query = query.Where(t =>
+                db.Accounts.Any(a => a.CustomerId == id && a.Iban == t.FromIban) ||
+                db.Accounts.Any(a => a.CustomerId == id && a.Iban == t.ToIban));
+        }
+
+
+        if (status.HasValue)
+        {
+            var s = status.Value;
+            query = query.Where(t => t.Status == s);
+        }
+
+        return await query
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync(ct);
+    }
+
 }

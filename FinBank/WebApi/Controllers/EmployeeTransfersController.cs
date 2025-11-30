@@ -1,6 +1,7 @@
 using Application.DTOs;
 using Application.UseCases.Commands;
 using Application.UseCases.Commands.TransferCommands;
+using Application.UseCases.Queries.TransferQueries;
 using Domain.Enums;
 using FluentResults;
 using Mediator.Abstractions;
@@ -18,8 +19,8 @@ public class EmployeeTransfersController(IMediator mediator) : ControllerBase
     public async Task<ActionResult<Result<IList<TransferDto>>>> GetTransfersByStatus([FromQuery] TransferStatus? status,
         CancellationToken ct)
     {
-        var result = await mediator.SendQueryAsync<GetTransferApprovalByStatusQuery, Result<List<TransferDto>>>(
-            new GetTransferApprovalByStatusQuery(status), ct);
+        var result = await mediator.SendQueryAsync<GetTransfersByStatusQuery, Result<List<TransferDto>>>(
+            new GetTransfersByStatusQuery(status), ct);
 
         if (result.IsFailed)
         {

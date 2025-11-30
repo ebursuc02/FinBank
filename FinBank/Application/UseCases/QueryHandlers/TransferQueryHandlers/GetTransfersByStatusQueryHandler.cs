@@ -1,15 +1,16 @@
 using Application.DTOs;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Commands.TransferCommands;
+using Application.UseCases.Queries.TransferQueries;
 using FluentResults;
 using Mediator.Abstractions;
 
 namespace Application.UseCases.CommandHandlers.TransferCommandHandlers;
 
-public class GetTransferApprovalByStatusQueryHandler(ITransferRepository repository):IQueryHandler<
-    GetTransferApprovalByStatusQuery, Result<List<TransferDto>>>
+public class GetTransfersByStatusQueryHandler(ITransferRepository repository):IQueryHandler<
+    GetTransfersByStatusQuery, Result<List<TransferDto>>>
 {
-    public async Task<Result<List<TransferDto>>> HandleAsync(GetTransferApprovalByStatusQuery query, CancellationToken cancellationToken)
+    public async Task<Result<List<TransferDto>>> HandleAsync(GetTransfersByStatusQuery query, CancellationToken cancellationToken)
     {
         var transfers = await repository.GetAccountsByStatus(query.Status, cancellationToken);
 
