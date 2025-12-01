@@ -24,10 +24,10 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore FinBank/FinBank.sln
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build FinBank/FinBank.sln --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test FinBank/FinBank.sln --no-build --verbosity normal
