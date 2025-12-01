@@ -1,15 +1,17 @@
+using Xunit;
+
 namespace UnitTests;
 
 public class Tests
 {
-    [SetUp]
-    public void Setup()
+    public Tests()
     {
     }
 
-    [Test]
+    [Fact]
     public void Test1()
     {
-        Assert.Pass();
+        // xUnit asserts:
+        Assert.True(true);
     }
 }
