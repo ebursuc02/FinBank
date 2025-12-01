@@ -32,6 +32,10 @@ jobs:
         working-directory: ./FinBank
         run: dotnet build --configuration Release --no-restore
 
-      - name: Run tests
+      - name: Run unit tests
         working-directory: ./FinBank
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test ./UnitTests/UnitTests.csproj --no-build --verbosity normal
+
+      - name: Run integration tests
+        working-directory: ./FinBank
+        run: dotnet test ./IntegrationTests/IntegrationTests.csproj --no-build --verbosity normal
