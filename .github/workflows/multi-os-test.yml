@@ -9,11 +9,12 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-
     strategy:
+      fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         dotnet-version: ['8.0']
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,10 +25,13 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: Restore dependencies
-        run: dotnet restore FinBank/FinBank.sln
+        working-directory: ./FinBank
+        run: dotnet restore
 
       - name: Build
-        run: dotnet build FinBank/FinBank.sln --configuration Release --no-restore
+        working-directory: ./FinBank
+        run: dotnet build --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test FinBank/FinBank.sln --no-build --verbosity normal
+        working-directory: ./FinBank
+        run: dotnet test --no-build --verbosity normal
