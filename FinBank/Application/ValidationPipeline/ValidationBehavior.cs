@@ -18,9 +18,9 @@ public class ValidationBehavior<TRequest, TResponse>(
             .ToList();
         
         if (failures.Count == 0) return await next();
-        
         var fail = new TResponse();
-        fail.Reasons.Add(new ValidationError(failures.ToString()));
+        failures.ForEach(failure => fail.Reasons.Add(new ValidationError(failure.ErrorMessage)));
+        
         return fail;
     }
 }
