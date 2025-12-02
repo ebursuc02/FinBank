@@ -11,7 +11,7 @@ public class GetTransfersByCustomerIdOrStatusQueryHandler(ITransferRepository re
 {
     public async Task<Result<List<TransferDto>>> HandleAsync(GetTransfersByCustomerIdOrStatusQuery query, CancellationToken cancellationToken)
     {
-        var transfers = await repository.GetTransfersByCustomerIdOrStatusAsync(query.CustomerId, query.Status, cancellationToken);
+        var transfers = await repository.GetTransfersByCustomerIdOrStatusAndIbanAsync(query.CustomerId, query.Iban, query.Status, cancellationToken);
         if (transfers.Count == 0)
         {
             return Result.Fail<List<TransferDto>>(new NotFoundError("No transfers found for the given criteria"));

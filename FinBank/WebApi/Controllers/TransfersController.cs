@@ -1,6 +1,11 @@
-﻿using Application.DTOs;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Application.DTOs;
 using Application.UseCases.Commands;
 using Application.UseCases.Queries;
+using Application.UseCases.Queries.TransferQueries;
+using Domain;
+using Domain.Enums;
 using FluentResults;
 using Mediator.Abstractions;
 using Microsoft.AspNetCore.Mvc;
@@ -50,6 +55,27 @@ public class TransfersController(IMediator mediator) : ControllerBase
             new GetTransferByIdQuery{CustomerId = customerId, Iban = accountIban, TransferId = transferId}, ct);
 
         return result.ToErrorResponseOrNull(this) ??Ok(result.Value);
+    }
+    
+    [HttpGet("status")]
+    public async Task<IActionResult> GetTransfersByStatus(
+        [FromRoute] Guid customerId,
+        [FromRoute] string accountIban,
+        [FromQuery] TransferStatus? status,
+        CancellationToken ct)
+    {
+        var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ??
+                     User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        
+        var role = User.FindFirst(ClaimTypes.Role)?.Value;
+        
+        if (userId is null || role is null || (userId != customerId.ToString() && role != UserRole.Banker))
+            return Forbid();
+
+        var result = await mediator.SendQueryAsync<GetTransfersByCustomerIdOrStatusQuery, Result<List<TransferDto>>>(
+            new GetTransfersByCustomerIdOrStatusQuery(customerId, accountIban, status), ct);
+        
+        return  result.ToErrorResponseOrNull(this) ?? Ok(result.Value);
     }
 
 }

@@ -77,8 +77,9 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
         return Result.Ok();
     }
 
-    public async Task<List<Transfer>> GetTransfersByCustomerIdOrStatusAsync(
+    public async Task<List<Transfer>> GetTransfersByCustomerIdOrStatusAndIbanAsync(
         Guid? customerId,
+        string iban,
         TransferStatus? status,
         CancellationToken ct)
     {
@@ -95,6 +96,10 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
                 db.Accounts.Any(a => a.CustomerId == id && a.Iban == t.ToIban));
         }
 
+        if (!string.IsNullOrWhiteSpace(iban))
+        {
+            query = query.Where(t => t.FromIban == iban || t.ToIban == iban);
+        }
 
         if (status.HasValue)
         {
