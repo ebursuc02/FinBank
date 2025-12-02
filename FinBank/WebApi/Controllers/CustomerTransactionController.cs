@@ -14,7 +14,7 @@ namespace WebApi.Controllers;
 
 [Route("api/v1/customers/{customerId:guid}/transfers")]
 [ApiController]
-[Authorize(Roles = UserRole.AllRoles)]
+[Authorize(Roles = UserRole.Customer)]
 public class CustomerTransactionController(IMediator mediator):ControllerBase
 {
     [HttpGet]
