@@ -18,10 +18,8 @@ public class GetAllAccountsQueryHandler(
         CancellationToken ct)
     {
         var accounts = await repository.GetByCustomerAsync(query.CustomerId, ct);
-        var validAccounts = accounts
-            .Where(account => !account.IsClosed && account.CustomerId != query.CustomerId)
-            .ToList();
-        if (!validAccounts.Any())
+        var validAccounts = accounts.Where(account => !account.IsClosed).ToList();
+        if (validAccounts.Count == 0)
             return Result.Fail<IEnumerable<AccountDto>>(new NotFoundError("No open accounts found for this customer"));
         return Result.Ok(validAccounts.Select(mapper.Map<AccountDto>));
     }

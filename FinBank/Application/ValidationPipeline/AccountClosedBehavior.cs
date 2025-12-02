@@ -15,7 +15,7 @@ public sealed class AccountClosedBehavior<TReq, TRes>(
         Func<Task<TRes>> next,
         CancellationToken ct)
     {
-        if (request is not IAuthorizable req) return await next();
+        if (request is not IAccountClosedCheck req) return await next();
 
         var account = await repo.GetByIbanAsync(req.Iban, ct);
         var fail = new TRes();

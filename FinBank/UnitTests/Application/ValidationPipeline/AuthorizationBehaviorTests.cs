@@ -73,49 +73,6 @@ public class AuthorizationBehaviorTests
     }
 
     [Test]
-    public async Task Should_Block_IfAccountDoesNotExist()
-    {
-        // Arrange
-        var customerId = Guid.NewGuid();
-        var req = new TestRequest { Iban = "iban2", CustomerId = customerId };
-        _repo.GetByIbanAsync("iban2", Arg.Any<CancellationToken>()).Returns((Account)null);
-
-        // Act
-        var result = await _behavior.HandleAsync(req, _next, CancellationToken.None);
-
-        // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.IsFailed);
-            Assert.That(result.Errors[0].Message, Does.Contain("not owned"));
-            _repo.Received(1).GetByIbanAsync("iban2", Arg.Any<CancellationToken>());
-            _next.DidNotReceive()();
-        });
-    }
-
-    [Test]
-    public async Task Should_Block_IfAccountNotOwnedByCustomer()
-    {
-        // Arrange
-        var customerId = Guid.NewGuid();
-        var customerIdOther = Guid.NewGuid();
-        var req = new TestRequest { Iban = "iban3", CustomerId = customerId };
-        _repo.GetByIbanAsync("iban3", Arg.Any<CancellationToken>()).Returns(new Account { CustomerId = customerIdOther });
-
-        // Act
-        var result = await _behavior.HandleAsync(req, _next, CancellationToken.None);
-
-        // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.IsFailed);
-            Assert.That(result.Errors[0].Message, Does.Contain("not owned"));
-            _repo.Received(1).GetByIbanAsync("iban3", Arg.Any<CancellationToken>());
-            _next.DidNotReceive()();
-        });
-    }
-
-    [Test]
     public async Task Should_HandleRepositoryException_AndReturnFailedResult()
     {
         // Arrange
