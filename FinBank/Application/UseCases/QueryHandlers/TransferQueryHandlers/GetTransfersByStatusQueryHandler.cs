@@ -1,4 +1,5 @@
 using Application.DTOs;
+using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Commands.TransferCommands;
 using Application.UseCases.Queries.TransferQueries;
@@ -16,7 +17,7 @@ public class GetTransfersByStatusQueryHandler(ITransferRepository repository):IQ
 
         if (transfers.Count == 0)
         {
-            return Result.Fail<List<TransferDto>>("No transfers found with the specified status.");
+            return Result.Fail<List<TransferDto>>(new NotFoundError("No transfers found with the specified status"));
         }
         
         var transferDto = transfers.Select(transfer => new TransferDto

@@ -11,7 +11,6 @@ public class Tests
     [Fact]
     public void Test1()
     {
-        // xUnit asserts:
         Assert.True(true);
     }
 }

@@ -18,20 +18,13 @@ namespace WebApi.Controllers;
 public class EmployeeTransfersController(IMediator mediator) : ControllerBase
 {
     [HttpGet("transfers")]
-    public async Task<ActionResult<Result<IList<TransferDto>>>> GetTransfersByStatus([FromQuery] TransferStatus? status,
+    public async Task<IActionResult> GetTransfersByStatus([FromQuery] TransferStatus? status,
         CancellationToken ct)
     {
         var result = await mediator.SendQueryAsync<GetTransfersByStatusQuery, Result<List<TransferDto>>>(
             new GetTransfersByStatusQuery(status), ct);
 
-        if (result.IsFailed)
-        {
-            return NotFound("No transactions found.");
-        }
-
-        var approvalList = result.Value;
-
-        return Ok(approvalList);
+        return result.ToErrorResponseOrNull(this) ?? Ok(result.Value);
     }
 
     [HttpPatch("{transferId:guid}/accept")]

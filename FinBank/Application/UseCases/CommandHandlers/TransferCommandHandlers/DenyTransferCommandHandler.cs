@@ -10,6 +10,6 @@ public class DenyTransferCommandHandler(ITransferRepository repository):ICommand
     public async Task<Result> HandleAsync(DenyTransferCommand command, CancellationToken cancellationToken)
     {
         var result = await repository.DenyTransferAsync(command.TransferId, command.Reason, cancellationToken);
-        return result.IsFailed ? Result.Fail(result.Errors) : Result.Ok();
+        return result.IsFailed ? Result.Fail(result.Errors) : result;
     }
 }
