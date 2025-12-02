@@ -14,4 +14,5 @@ public class RegisterUserCommand() : ICommand<Result<UserDto>>
     public string? Country { get; init; }
     public DateTime? Birthday { get; init; }
     public  string? Address { get; init; }
+    public string Role { get; set; } = UserRole.Customer;
 }

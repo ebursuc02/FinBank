@@ -30,7 +30,7 @@ public class RegisterUserCommandHandler(
         {
             UserId = Guid.NewGuid(),
             Email = command.Email,
-            Role = "Customer",
+            Role = command.Role,
             Name = command.Name,
             PhoneNumber = command.PhoneNumber,
             Country = command.Country,
