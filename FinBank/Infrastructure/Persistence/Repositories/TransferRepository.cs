@@ -1,7 +1,8 @@
-﻿using Application.DTOs;
+﻿using Application.Errors;
 using Application.Interfaces.Repositories;
 using Domain;
 using Domain.Enums;
+using FluentResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories;
@@ -36,41 +37,46 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
             .ToListAsync(ct);
     }
 
-    public async Task AcceptTransferAsync(Guid transferId, CancellationToken ct)
+    public async Task<Result> AcceptTransferAsync(Guid transferId, CancellationToken ct)
     {
         var transfer = await db.Transfers
             .FirstOrDefaultAsync(x => x.TransferId == transferId, ct);
-        
+
         if (transfer is null)
-            throw new InvalidOperationException($"Transfer {transferId} not found.");
-        
+        {
+            return Result.Fail(new NotFoundError($"Transfer {transferId} not found"));    
+        }
         if (transfer.Status != TransferStatus.Pending)
-            throw new InvalidOperationException(
-                $"Only transfers with status '{TransferStatus.Pending}' can be accepted.");
+        {
+            return Result.Fail(
+                new ConflictError("Only pending transfers can be accepted"));
+        }
         
         transfer.Status = TransferStatus.Completed;
         transfer.CompletedAt = DateTime.UtcNow;
         
         await db.SaveChangesAsync(ct);
+        return Result.Ok();
     }
     
-    public async Task DenyTransferAsync(Guid transferId, string? reason, CancellationToken ct)
+    public async Task<Result> DenyTransferAsync(Guid transferId, string? reason, CancellationToken ct)
     {
         var transfer = await db.Transfers
             .FirstOrDefaultAsync(x => x.TransferId == transferId, ct);
 
         if (transfer is null)
-            throw new InvalidOperationException($"Transfer {transferId} not found.");
+            return Result.Fail(new NotFoundError($"Transfer {transferId} not found."));
 
         if (transfer.Status != TransferStatus.Pending)
-            throw new InvalidOperationException(
-                $"Only transfers with status '{TransferStatus.Pending}' can be denied.");
+            return Result.Fail(new ConflictError(
+                $"Only transfers with status '{TransferStatus.Pending}' can be denied."));
 
         transfer.Status = TransferStatus.Rejected;
         transfer.Reason = reason;                     
         transfer.CompletedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(ct);
+        return Result.Ok();
     }
 
     public async Task<List<Transfer>> GetTransfersByCustomerIdOrStatusAsync(

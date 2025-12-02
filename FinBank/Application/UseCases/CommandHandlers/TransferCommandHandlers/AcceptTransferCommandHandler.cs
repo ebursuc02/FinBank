@@ -3,13 +3,13 @@ using Application.UseCases.Commands;
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.UseCases.CommandHandlers;
+namespace Application.UseCases.CommandHandlers.TransferCommandHandlers;
 
 public class AcceptTransferCommandHandler(ITransferRepository repository):ICommandHandler<AcceptTransferCommand,Result>
 {
     public async Task<Result> HandleAsync(AcceptTransferCommand command, CancellationToken cancellationToken)
     {
-       await repository.AcceptTransferAsync(command.TransferId, cancellationToken);
-       return Result.Ok();
+       var result = await repository.AcceptTransferAsync(command.TransferId, cancellationToken);
+       return result.IsFailed ? Result.Fail(result.Errors) : Result.Ok();
     }
 }

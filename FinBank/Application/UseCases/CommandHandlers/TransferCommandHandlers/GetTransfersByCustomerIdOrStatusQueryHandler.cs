@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Queries.TransferQueries;
 using FluentResults;
@@ -13,10 +14,10 @@ public class GetTransfersByCustomerIdOrStatusQueryHandler(ITransferRepository re
         var transfers = await repository.GetTransfersByCustomerIdOrStatusAsync(query.CustomerId, query.Status, cancellationToken);
         if (transfers.Count == 0)
         {
-            return Result.Fail<List<TransferDto>>("No transfers found for the specified customer ID or status.");
+            return Result.Fail<List<TransferDto>>(new NotFoundError("No transfers found for the given criteria"));
         }
         
-        var transferDtos = transfers.Select(t => new TransferDto
+        var transfersDto = transfers.Select(t => new TransferDto
         {
             TransferId = t.TransferId,
             Amount = t.Amount,
@@ -25,7 +26,7 @@ public class GetTransfersByCustomerIdOrStatusQueryHandler(ITransferRepository re
             CreatedAt = t.CreatedAt,
         }).ToList();
         
-        return Result.Ok(transferDtos);
+        return Result.Ok(transfersDto);
     }
     
 }

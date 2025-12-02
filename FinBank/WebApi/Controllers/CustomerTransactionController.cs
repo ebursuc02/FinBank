@@ -8,16 +8,17 @@ using FluentResults;
 using Mediator.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.FailHandeling;
 
 namespace WebApi.Controllers;
 
 [Route("api/v1/customers/{customerId:guid}/transfers")]
 [ApiController]
-[Authorize]
+[Authorize(Roles = UserRole.AllRoles)]
 public class CustomerTransactionController(IMediator mediator):ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<Result<IList<TransferDto>>>> GetCustomerTransfers(
+    public async Task<IActionResult> GetCustomerTransfers(
         Guid customerId,
         [FromQuery] TransferStatus? status,
         CancellationToken ct)
@@ -27,16 +28,13 @@ public class CustomerTransactionController(IMediator mediator):ControllerBase
         
         var role = User.FindFirst(ClaimTypes.Role)?.Value;
         
-        if (userId is null || role is null || userId != customerId.ToString() && role != "Employee")
+        if (userId is null || role is null || (userId != customerId.ToString() && role != UserRole.Banker))
             return Forbid();
 
         var result = await mediator.SendQueryAsync<GetTransfersByCustomerIdOrStatusQuery, Result<List<TransferDto>>>(
             new GetTransfersByCustomerIdOrStatusQuery(customerId, status), ct);
-
-        if (result.IsFailed)
-            return NotFound("No transactions found.");
-
-        return Ok(result.Value);
+        
+        return  result.ToErrorResponseOrNull(this) ?? Ok(result.Value);
     }
 
 }
