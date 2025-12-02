@@ -41,8 +41,17 @@ namespace UnitTests.Application.UseCases.QueryHandlers
                 new Account { IsClosed = false },
                 new Account { IsClosed = false }
             };
-            _repository.GetByCustomerAsync(customerId, Arg.Any<CancellationToken>()).Returns(accounts);
-            _mapper.Map<AccountDto>(Arg.Any<Account>()).Returns(new AccountDto());
+    
+            _repository.GetByCustomerAsync(customerId, Arg.Any<CancellationToken>())
+                .Returns(accounts);
+
+            _mapper.Map<AccountDto>(Arg.Any<Account>())
+                .Returns(callInfo => new AccountDto
+                {
+                    Iban = Guid.NewGuid().ToString(),
+                    Currency = "EUR"
+                });
+
             var query = new GetAllAccountsQuery { CustomerId = customerId };
 
             // Act
@@ -53,9 +62,11 @@ namespace UnitTests.Application.UseCases.QueryHandlers
             {
                 Assert.That(result.IsSuccess);
                 Assert.That(result.Value.Count(), Is.EqualTo(2));
-                _repository.Received(1).GetByCustomerAsync(customerId, Arg.Any<CancellationToken>());
+                _repository.Received(1)
+                    .GetByCustomerAsync(customerId, Arg.Any<CancellationToken>());
             });
         }
+
 
         [Test]
         public async Task HandleAsync_ShouldReturnNotFound_WhenNoOpenAccounts()

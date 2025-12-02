@@ -5,7 +5,6 @@ using Application.Interfaces.Security;
 using Application.UseCases.Commands.UserCommands;
 using Application.UseCases.Queries.CustomerQueries;
 using Microsoft.AspNetCore.Mvc;
-using Domain;
 using FluentResults;
 using Mediator.Abstractions;
 using Microsoft.AspNetCore.Authorization;

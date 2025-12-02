@@ -43,7 +43,7 @@ namespace UnitTests.Application.UseCases.CommandHandlers
             var user = new User { UserId = customerId, Role = UserRole.Customer };
             var iban = "IBAN123";
             var account = new Account { Iban = iban, CustomerId = customerId };
-            var accountDto = new AccountDto { Iban = iban, CustomerId = customerId };
+            var accountDto = new AccountDto { Iban = iban, CustomerId = customerId, Currency = "EUR"};
             var command = new CreateAccountCommand { CustomerId = customerId, Currency = "EUR", InitialDeposit = 100 };
             _userRepository.GetAsync(customerId, Arg.Any<CancellationToken>()).Returns(user);
             _ibanGenerator.Generate(customerId).Returns(iban);
