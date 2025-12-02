@@ -55,7 +55,6 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
         transfer.Status = TransferStatus.Completed;
         transfer.CompletedAt = DateTime.UtcNow;
         
-        await db.SaveChangesAsync(ct);
         return Result.Ok();
     }
     
@@ -74,8 +73,7 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
         transfer.Status = TransferStatus.Rejected;
         transfer.Reason = reason;                     
         transfer.CompletedAt = DateTime.UtcNow;
-
-        await db.SaveChangesAsync(ct);
+        
         return Result.Ok();
     }
 
