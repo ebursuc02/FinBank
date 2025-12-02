@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using System.Diagnostics;
+using Application.DTOs;
 using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Queries;
@@ -18,6 +19,7 @@ public class GetTransferByIdQueryHandler(
         var transfer = await transferRepository.GetAsync(query.TransferId, ct);
         if (transfer is null)
             return Result.Fail<TransferDto>(new NotFoundError("Transfer not found"));
+        
         return Result.Ok(mapper.Map<TransferDto>(transfer));
     }
 }

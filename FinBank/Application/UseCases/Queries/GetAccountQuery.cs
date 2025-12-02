@@ -1,10 +1,12 @@
 ﻿using Application.DTOs;
+using Application.Interfaces.Utils;
 using FluentResults;
 using Mediator.Abstractions;
 
 namespace Application.UseCases.Queries;
 
-public class GetAccountQuery : IQuery<Result<AccountDto>>
+public class GetAccountQuery : IQuery<Result<AccountDto>>, IAuthorizable, IAccountClosedCheck
 {
-    public string AccountIban { get; init; }
+    public Guid CustomerId { get; init; }
+    public string Iban { get; init; } = string.Empty;
 }

@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using Application.Errors;
 using Application.Interfaces.UnitOfWork;
 using FluentResults;
 using Mediator.Abstractions;
@@ -41,7 +42,7 @@ public sealed class TransactionBehavior<TReq, TRes>(IUnitOfWork uow)
         {
             await transaction.RollbackAsync(ct);
             var fail = new TRes();
-            fail.Reasons.Add(new Error($"Unexpected error during transaction: {exception.Message}"));
+            fail.Reasons.Add(new UnexpectedError($"Unexpected error during transaction: {exception.Message}"));
             return fail;
         }
     }

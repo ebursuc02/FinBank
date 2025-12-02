@@ -10,7 +10,7 @@ public sealed class RiskEvaluationBehavior<TReq, TRes>(
     IRiskClient riskClient,
     IRiskPolicyEvaluator evaluator,
     IRiskContext riskContext) : IPipelineBehavior<TReq, TRes>
-    where TRes : Result
+    where TRes : ResultBase
 {
     public async Task<TRes> HandleAsync(
         TReq request,

@@ -5,7 +5,7 @@ using Mediator.Abstractions;
 
 namespace Application.UseCases.Queries;
 
-public class GetTransferByIdQuery : IQuery<Result<TransferDto>>, IAuthorizable
+public class GetTransferByIdQuery : IQuery<Result<TransferDto>>, IAuthorizable, IAccountClosedCheck
 {
     public Guid TransferId { get; init; }
     public Guid CustomerId { get; init; }

@@ -3,7 +3,9 @@ using Application.UseCases.Commands;
 using Application.UseCases.Queries;
 using FluentResults;
 using Mediator.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Authorization;
 using WebApi.FailHandeling;
 
 namespace WebApi.Controllers;
@@ -12,6 +14,7 @@ namespace WebApi.Controllers;
 [ApiController]
 public class TransfersController(IMediator mediator) : ControllerBase
 {
+    [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpPost]
     public async Task<IActionResult> CreateTransfer(
         [FromBody] CreateTransferCommand command,
@@ -19,14 +22,12 @@ public class TransfersController(IMediator mediator) : ControllerBase
         [FromRoute] string accountIban,
         CancellationToken ct)
     {
-        if (customerId != command.CustomerId || accountIban != command.Iban)
-            return BadRequest(ModelState);
-
         var result = await mediator.SendCommandAsync<CreateTransferCommand, Result>(command, ct);
 
-        return result.ToErrorResponseOrNull(this) ??Created();
+        return result.ToErrorResponseOrNull(this) ?? Created();
     }
-    
+
+    [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpGet]
     public async Task<IActionResult> GetTransfers(
         [FromRoute] Guid customerId,
@@ -34,11 +35,12 @@ public class TransfersController(IMediator mediator) : ControllerBase
         CancellationToken ct)
     {
         var result = await mediator.SendQueryAsync<GetTransfersQuery, Result<IEnumerable<TransferDto>>>(
-            new GetTransfersQuery{CustomerId = customerId, Iban = accountIban}, ct);
+            new GetTransfersQuery { CustomerId = customerId, Iban = accountIban }, ct);
 
-        return result.ToErrorResponseOrNull(this) ??Ok(result.Value);
+        return result.ToErrorResponseOrNull(this) ?? Ok(result.Value);
     }
-    
+
+    [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpGet("{transferId:Guid}")]
     public async Task<IActionResult> GetTransfers(
         [FromRoute] Guid customerId,
@@ -47,9 +49,8 @@ public class TransfersController(IMediator mediator) : ControllerBase
         CancellationToken ct)
     {
         var result = await mediator.SendQueryAsync<GetTransferByIdQuery, Result<TransferDto>>(
-            new GetTransferByIdQuery{CustomerId = customerId, Iban = accountIban, TransferId = transferId}, ct);
+            new GetTransferByIdQuery { CustomerId = customerId, Iban = accountIban, TransferId = transferId }, ct);
 
-        return result.ToErrorResponseOrNull(this) ??Ok(result.Value);
+        return result.ToErrorResponseOrNull(this) ?? Ok(result.Value);
     }
-
 }
