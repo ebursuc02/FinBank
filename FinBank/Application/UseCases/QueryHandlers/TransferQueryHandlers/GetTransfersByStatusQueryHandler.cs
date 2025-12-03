@@ -1,12 +1,11 @@
 using Application.DTOs;
 using Application.Errors;
 using Application.Interfaces.Repositories;
-using Application.UseCases.Commands.TransferCommands;
 using Application.UseCases.Queries.TransferQueries;
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.UseCases.CommandHandlers.TransferCommandHandlers;
+namespace Application.UseCases.QueryHandlers.TransferQueryHandlers;
 
 public class GetTransfersByStatusQueryHandler(ITransferRepository repository):IQueryHandler<
     GetTransfersByStatusQuery, Result<List<TransferDto>>>

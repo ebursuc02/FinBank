@@ -12,12 +12,12 @@ using NUnit.Framework;
 namespace UnitTests.Application.ValidationPipeline;
 
 [TestFixture]
-public class RiskEvaluationBehaviorTests
+public class KycDecisionBehaviorTests
 {
     private IRiskClient _riskClient;
     private IRiskPolicyEvaluator _evaluator;
     private IRiskContext _riskContext;
-    private RiskEvaluationBehavior<CreateTransferCommand, Result> _behavior;
+    private KycDecisionBehavior<CreateTransferCommand, Result> _behavior;
     private Func<Task<Result>> _next;
 
     [SetUp]
@@ -26,7 +26,7 @@ public class RiskEvaluationBehaviorTests
         _riskClient = Substitute.For<IRiskClient>();
         _evaluator = Substitute.For<IRiskPolicyEvaluator>();
         _riskContext = Substitute.For<IRiskContext>();
-        _behavior = new RiskEvaluationBehavior<CreateTransferCommand, Result>(_riskClient, _evaluator, _riskContext);
+        _behavior = new KycDecisionBehavior<CreateTransferCommand, Result>(_riskClient, _evaluator, _riskContext);
         _next = Substitute.For<Func<Task<Result>>>();
     }
 
@@ -34,7 +34,7 @@ public class RiskEvaluationBehaviorTests
     public async Task Should_Skip_ForNonCreateTransferCommand()
     {
         // Arrange
-        var behavior = new RiskEvaluationBehavior<object, Result>(_riskClient, _evaluator, _riskContext);
+        var behavior = new KycDecisionBehavior<object, Result>(_riskClient, _evaluator, _riskContext);
         _next.Invoke().Returns(Result.Ok());
         var request = new object();
 

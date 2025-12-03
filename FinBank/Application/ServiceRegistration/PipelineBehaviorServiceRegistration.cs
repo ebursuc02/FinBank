@@ -10,8 +10,8 @@ namespace Application.ServiceRegistration
         {
             return services
                 .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>))
-                .AddScoped(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehavior<,>))
-                .AddScoped(typeof(IPipelineBehavior<,>), typeof(RiskEvaluationBehavior<,>))
+                .AddScoped(typeof(IPipelineBehavior<,>), typeof(TransferPreconditionBehavior<,>))
+                .AddScoped(typeof(IPipelineBehavior<,>), typeof(KycDecisionBehavior<,>))
                 .AddScoped(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
         }
     }

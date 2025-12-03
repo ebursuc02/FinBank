@@ -12,10 +12,10 @@ using NUnit.Framework;
 namespace UnitTests.Application.ValidationPipeline;
 
 [TestFixture]
-public class AuthorizationBehaviorTests
+public class OwnershipBehaviorTests
 {
     private IAccountRepository _repo;
-    private AuthorizationBehavior<TestRequest, Result> _behavior;
+    private TransferPreconditionBehavior<TestRequest, Result> _behavior;
     private Func<Task<Result>> _next;
 
     public class TestRequest : IAuthorizable
@@ -28,7 +28,7 @@ public class AuthorizationBehaviorTests
     public void SetUp()
     {
         _repo = Substitute.For<IAccountRepository>();
-        _behavior = new AuthorizationBehavior<TestRequest, Result>(_repo);
+        _behavior = new TransferPreconditionBehavior<TestRequest, Result>(_repo);
         _next = Substitute.For<Func<Task<Result>>>();
     }
 
@@ -36,7 +36,7 @@ public class AuthorizationBehaviorTests
     public async Task Should_AllowNext_IfRequestIsNotAuthorizable()
     {
         // Arrange
-        var behavior = new AuthorizationBehavior<object, Result>(_repo);
+        var behavior = new TransferPreconditionBehavior<object, Result>(_repo);
         _next.Invoke().Returns(Result.Ok());
         var request = new object();
 

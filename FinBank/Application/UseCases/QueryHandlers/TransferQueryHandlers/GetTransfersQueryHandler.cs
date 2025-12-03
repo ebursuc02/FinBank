@@ -5,7 +5,7 @@ using AutoMapper;
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.UseCases.QueryHandlers;
+namespace Application.UseCases.QueryHandlers.TransferQueryHandlers;
 
 public class GetTransfersQueryHandler(
     ITransferRepository transferRepository,

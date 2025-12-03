@@ -5,6 +5,7 @@ using Application.UseCases.Commands.TransferCommands;
 using Application.UseCases.Queries;
 using Application.UseCases.Queries.TransferQueries;
 using Application.UseCases.QueryHandlers;
+using Application.UseCases.QueryHandlers.TransferQueryHandlers;
 using FluentResults;
 using Mediator.Abstractions;
 using Microsoft.Extensions.DependencyInjection;

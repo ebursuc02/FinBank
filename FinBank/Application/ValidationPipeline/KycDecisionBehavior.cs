@@ -6,7 +6,7 @@ using Mediator.Abstractions;
 
 namespace Application.ValidationPipeline;
 
-public sealed class RiskEvaluationBehavior<TReq, TRes>(
+public sealed class KycDecisionBehavior<TReq, TRes>(
     IRiskClient riskClient,
     IRiskPolicyEvaluator evaluator,
     IRiskContext riskContext) : IPipelineBehavior<TReq, TRes>

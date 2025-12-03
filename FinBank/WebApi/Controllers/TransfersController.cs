@@ -4,7 +4,6 @@ using Application.DTOs;
 using Application.UseCases.Commands;
 using Application.UseCases.Queries;
 using Application.UseCases.Queries.TransferQueries;
-using Domain;
 using Domain.Enums;
 using FluentResults;
 using Mediator.Abstractions;
@@ -35,7 +34,7 @@ public class TransfersController(IMediator mediator) : ControllerBase
     }
     
     [HttpGet("{transferId:Guid}")]
-    public async Task<IActionResult> GetTransfers(
+    public async Task<IActionResult> GetTransferById(
         [FromRoute] Guid customerId,
         [FromRoute] string accountIban,
         [FromRoute] Guid transferId,
@@ -44,7 +43,7 @@ public class TransfersController(IMediator mediator) : ControllerBase
         var result = await mediator.SendQueryAsync<GetTransferByIdQuery, Result<TransferDto>>(
             new GetTransferByIdQuery{CustomerId = customerId, Iban = accountIban, TransferId = transferId}, ct);
 
-        return result.ToErrorResponseOrNull(this) ??Ok(result.Value);
+        return result.ToErrorResponseOrNull(this) ?? Ok(result.Value);
     }
     
     [HttpGet]
