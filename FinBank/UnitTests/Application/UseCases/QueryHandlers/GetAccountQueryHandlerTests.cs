@@ -36,7 +36,11 @@ namespace UnitTests.Application.UseCases.QueryHandlers
             // Arrange
             var account = new Domain.Account { IsClosed = false };
             _repository.GetByIbanAsync("iban1", Arg.Any<CancellationToken>()).Returns(account);
-            _mapper.Map<AccountDto>(account).Returns(new AccountDto());
+            _mapper.Map<AccountDto>(account).Returns(new AccountDto
+            {
+                Iban = "iban1",
+                Currency = "EUR"
+            });
             var query = new GetAccountQuery { Iban = "iban1" };
 
             // Act

@@ -8,5 +8,5 @@ namespace Application.UseCases.Queries;
 public class GetAccountQuery : IQuery<Result<AccountDto>>, IAuthorizable, IAccountClosedCheck
 {
     public Guid CustomerId { get; init; }
-    public string Iban { get; init; } = string.Empty;
+    public required string Iban { get; init; } = string.Empty;
 }

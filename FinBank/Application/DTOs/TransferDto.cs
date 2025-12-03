@@ -1,4 +1,4 @@
-﻿using Domain;
+using Domain;
 using Domain.Enums;
 
 namespace Application.DTOs;
@@ -12,7 +12,7 @@ public class TransferDto
     public string ToIban { get; set; } = string.Empty; 
     public Guid? ReviewedBy { get; set; } 
     public DateTime CreatedAt { get; set; }
-    public string Status { get; set; } = string.Empty;
+    public TransferStatus Status { get; set; }
     public decimal Amount { get; set; } 
     public string Currency { get; set; } = string.Empty; 
     public string? Reason { get; set; } 
