@@ -4,7 +4,7 @@ using Application.Interfaces.UnitOfWork;
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.ValidationPipeline;
+namespace Application.UseCases.ValidationPipeline;
 
 public sealed class TransactionBehavior<TReq, TRes>(IUnitOfWork uow)
     : IPipelineBehavior<TReq, TRes>

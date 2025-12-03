@@ -18,7 +18,7 @@ public class BalanceUpdateService(IAccountRepository repository) : IBalanceUpdat
         
         var receiverAccount = await repository.GetByIbanAsync(transfer.ToIban, ct);
         
-        senderAccount!.ApplyTransfer(-transfer.Amount, transfer.Currency);
+        senderAccount.ApplyTransfer(-transfer.Amount, transfer.Currency);
         receiverAccount?.ApplyTransfer(transfer.Amount, transfer.Currency);
         
         await repository.UpdateAsync(senderAccount, ct);

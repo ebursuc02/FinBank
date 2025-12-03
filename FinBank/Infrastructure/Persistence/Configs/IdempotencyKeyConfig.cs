@@ -13,20 +13,10 @@ public class IdempotencyKeyConfig : IEntityTypeConfiguration<IdempotencyKey>
 
 
         b.Property(x => x.IdempotencyKeyValue).HasColumnName("Key").HasMaxLength(100).IsRequired();
-        b.Property(x => x.TransferId).IsRequired();
         b.Property(x => x.RequestHash).HasMaxLength(200);
         b.Property(x => x.ResponseJson);
         b.Property(x => x.FirstProcessedAt);
 
-
-        b.HasOne(x => x.Transfer)
-            .WithMany(t => t.IdempotencyKeys)
-            .HasForeignKey(x => x.TransferId)
-            .HasConstraintName("FK_Idem_Transfer")
-            .OnDelete(DeleteBehavior.NoAction);
-
-
-        b.HasIndex(x => x.TransferId).HasDatabaseName("IX_Idem_TransferId");
         b.HasIndex(x => x.RequestHash)
             .IsUnique()
             .HasDatabaseName("UX_Idem_RequestHash")

@@ -4,7 +4,7 @@ using Application.Interfaces.Utils;
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.ValidationPipeline;
+namespace Application.UseCases.ValidationPipeline;
 
 public sealed class TransferPreconditionBehavior<TReq, TRes>(
     IAccountRepository repo
@@ -26,11 +26,13 @@ public sealed class TransferPreconditionBehavior<TReq, TRes>(
         {
             return Fail(new ForbiddenError("Sender account is not owned by the customer."));
         }
-        
-        if (request is not IAccountClosedCheckable req || !account!.IsClosed) return await next();
 
-        return Fail(new NotFoundError("Account is closed"));
-
+        if (request is IAccountClosedCheckable && account!.IsClosed)
+        {
+            return Fail(new NotFoundError("Account is closed"));
+        }
+ 
+        return await next();
     }
 
     private static TRes Fail(BaseApplicationError  error)

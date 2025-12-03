@@ -1,14 +1,14 @@
-﻿using Application.Interfaces.Kyc;
-using Domain.Enums;
+﻿using Domain.Enums;
+using Domain.Kyc;
 
-namespace Application.Services.Policies;
+namespace Domain.Policies;
 
 public sealed class StatusRiskPolicyEvaluator : IRiskPolicyEvaluator
 {
     private static readonly IReadOnlyDictionary<RiskStatus, TransferStatus> Map =
         new Dictionary<RiskStatus, TransferStatus>
         {
-            [RiskStatus.Low]     = TransferStatus.Completed,
+            [RiskStatus.Low]     = TransferStatus.Pending,
             [RiskStatus.Medium]  = TransferStatus.UnderReview,
             [RiskStatus.High]    = TransferStatus.UnderReview,
             [RiskStatus.Blocked] = TransferStatus.Rejected

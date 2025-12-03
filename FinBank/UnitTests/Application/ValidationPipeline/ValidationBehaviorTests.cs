@@ -1,4 +1,4 @@
-using Application.ValidationPipeline;
+using Application.UseCases.ValidationPipeline;
 using FluentResults;
 using FluentValidation;
 using FluentValidation.Results;

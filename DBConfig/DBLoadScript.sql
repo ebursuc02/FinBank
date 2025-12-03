@@ -91,9 +91,6 @@ BEGIN
         CONSTRAINT FK_Transfers_FromAccount
             FOREIGN KEY (FromIban) REFERENCES dbo.Accounts(IBAN)
             ON DELETE NO ACTION ON UPDATE NO ACTION,
-        CONSTRAINT FK_Transfers_ToAccount
-            FOREIGN KEY (ToIban)   REFERENCES dbo.Accounts(IBAN)
-            ON DELETE NO ACTION ON UPDATE NO ACTION,
         CONSTRAINT FK_Transfers_ReviewedBy
             FOREIGN KEY (ReviewedBy)    REFERENCES dbo.Users(UserId)
             ON DELETE NO ACTION ON UPDATE NO ACTION

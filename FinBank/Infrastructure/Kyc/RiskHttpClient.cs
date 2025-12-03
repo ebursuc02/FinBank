@@ -3,6 +3,7 @@ using Application.DTOs;
 using Application.Errors;
 using Application.Interfaces.Kyc;
 using Domain.Enums;
+using Domain.Kyc;
 using FluentResults;
 
 namespace Infrastructure.Kyc;
