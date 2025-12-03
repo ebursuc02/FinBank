@@ -19,7 +19,7 @@ public class AccountClosedBehaviorTests
     private Func<Task<Result>> _next;
     private Account _account;
 
-    public class TestCommand : IAuthorizable
+    public class TestCommand : IAccountClosedCheck
     {
         public Guid CustomerId { get; init; } = Guid.NewGuid();
         public string Iban { get; init; } = "iban";
