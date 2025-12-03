@@ -18,15 +18,7 @@ public class GetAccountQueryHandler(
         GetAccountQuery query,
         CancellationToken ct)
     {
-        var account = await repository.GetByIbanAsync(query.AccountIban, ct);
-        if (account is null)
-            return Result.Fail<AccountDto>(new NotFoundError("Account not found")
-                .WithMetadata("StatusCode", HttpStatusCode.NotFound)
-            );
-
-        if (account.IsClosed)
-            return Result.Fail<AccountDto>(new NotFoundError("Account is closed"));
-
+        var account = await repository.GetByIbanAsync(query.Iban, ct);
         return Result.Ok(mapper.Map<AccountDto>(account));
     }
 }

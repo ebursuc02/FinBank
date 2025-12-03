@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Queries;
 using AutoMapper;
@@ -21,7 +22,6 @@ public class GetTransfersQueryHandler(
             ct);
 
         var transferList = transfers.ToList();
-
         var dtoList = transferList.Select(mapper.Map<TransferDto>);
 
         return Result.Ok(dtoList);
