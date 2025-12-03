@@ -37,8 +37,6 @@ public class Mediator(IServiceProvider provider) : IMediator
 
         var behaviors = provider.GetServices<IPipelineBehavior<TQuery, TResult>>().Reverse();
         var handlerDelegate = () => handler.HandleAsync(query, cancellationToken);
-        Console.WriteLine("Executing query pipeline behaviors...");
-        Console.WriteLine(string.Join(", ", behaviors));
         foreach (var behavior in behaviors)
         {
             var next = handlerDelegate;
