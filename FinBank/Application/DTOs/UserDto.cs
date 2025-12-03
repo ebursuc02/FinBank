@@ -5,6 +5,7 @@ public class UserDto
     public required string Email { get; init; }
     public required string Role { get; init; }
     public Guid UserId { get; init; }
+    public DateTime CreatedAt { get; init; }
     public string Name { get; init; } = string.Empty;
     public string PhoneNumber { get; init; } = string.Empty;
     public string? Country { get; init; }

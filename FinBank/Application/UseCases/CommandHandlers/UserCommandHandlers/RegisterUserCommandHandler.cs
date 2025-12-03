@@ -1,13 +1,10 @@
-using System.Text.RegularExpressions;
-using System.Windows.Input;
+
 using Application.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Application.Errors;
-
 using Application.Interfaces.Repositories;
 using Application.UseCases.Commands.UserCommands;
 using FluentResults;
-using FluentValidation;
 using Domain;
 using Mediator.Abstractions;
 
@@ -32,6 +29,7 @@ public class RegisterUserCommandHandler(
             Email = command.Email,
             Role = command.Role,
             Name = command.Name,
+            CreatedAt = command.CreatedAt,
             PhoneNumber = command.PhoneNumber,
             Country = command.Country,
             Birthday = command.Birthday,
@@ -47,6 +45,7 @@ public class RegisterUserCommandHandler(
             UserId = user.UserId,
             Email = user.Email,
             Name = user.Name,
+            CreatedAt = user.CreatedAt,
             PhoneNumber = user.PhoneNumber,
             Country = user.Country,
             Birthday = user.Birthday,
