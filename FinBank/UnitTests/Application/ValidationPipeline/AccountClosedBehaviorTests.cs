@@ -19,7 +19,7 @@ public class AccountClosedBehaviorTests
     private Func<Task<Result>> _next;
     private Account _account;
 
-    public class TestCommand : IAccountClosedCheck
+    public class TestCommand : IAccountClosedCheckable
     {
         public Guid CustomerId { get; init; } = Guid.NewGuid();
         public string Iban { get; init; } = "iban";
@@ -54,7 +54,7 @@ public class AccountClosedBehaviorTests
     [Test]
     public async Task Handle_ShouldCallNext_IfAccountNotFound()
     {
-        _repo.GetByIbanAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns((Account)null);
+        _repo.GetByIbanAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns((Account)null!);
         var cmd = new TestCommand();
         _next.Invoke().Returns(Result.Ok());
 

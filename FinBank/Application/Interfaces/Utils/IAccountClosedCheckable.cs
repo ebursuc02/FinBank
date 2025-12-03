@@ -1,6 +1,6 @@
 namespace Application.Interfaces.Utils;
 
-public interface IAccountClosedCheck
+public interface IAccountClosedCheckable
 {
     public string Iban { get; init; }
 }

@@ -20,7 +20,7 @@ public class AuthorizationBehaviorTests
 
     public class TestRequest : IAuthorizable
     {
-        public string Iban { get; init; }
+        public required string Iban { get; init; }
         public Guid CustomerId { get; init; }
     }
 
@@ -73,7 +73,7 @@ public class AuthorizationBehaviorTests
     }
 
     [Test]
-    public async Task Should_HandleRepositoryException_AndReturnFailedResult()
+    public Task Should_HandleRepositoryException_AndReturnFailedResult()
     {
         // Arrange
         var customerId = Guid.NewGuid();
@@ -83,6 +83,7 @@ public class AuthorizationBehaviorTests
         // Act & Assert
         Assert.ThrowsAsync<Exception>(async () =>
             await _behavior.HandleAsync(req, _next, CancellationToken.None));
+        return Task.CompletedTask;
     }
 }
 
