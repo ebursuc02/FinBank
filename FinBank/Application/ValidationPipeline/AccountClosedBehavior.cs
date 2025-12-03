@@ -1,4 +1,4 @@
-﻿using Application.Errors;
+using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Utils;
 using FluentResults;
@@ -6,7 +6,7 @@ using Mediator.Abstractions;
 
 namespace Application.ValidationPipeline;
 
-public sealed class AuthorizationBehavior<TReq, TRes>(
+public sealed class AccountClosedBehavior<TReq, TRes>(
     IAccountRepository repo) : IPipelineBehavior<TReq, TRes>
     where TRes : ResultBase, new()
 {
@@ -15,23 +15,21 @@ public sealed class AuthorizationBehavior<TReq, TRes>(
         Func<Task<TRes>> next,
         CancellationToken ct)
     {
-        if (request is not IAuthorizable req) return await next();
+        if (request is not IAccountClosedCheckable req) return await next();
 
         var account = await repo.GetByIbanAsync(req.Iban, ct);
-        
         var fail = new TRes();
+        
+        // Let AuthorizationBehavior handle not found, it's not our responsibility
         if (account is null)
+            return await next();
+        
+        if (account.IsClosed)
         {
-            fail.Reasons.Add(new NotFoundError("Account not found"));
+            fail.Reasons.Add(new NotFoundError("Account is closed"));
             return fail;
         }
 
-        if (account.CustomerId != req.CustomerId)
-        {
-            fail.Reasons.Add(new ForbiddenError("Account does not belong to customer"));
-            return fail;
-        }
-        
         return await next();
     }
 }

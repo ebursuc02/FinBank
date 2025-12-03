@@ -9,7 +9,7 @@ using Mediator.Abstractions;
 namespace Application.UseCases.CommandHandlers.TransferCommandHandlers;
 
 public sealed class CreateTransferCommandHandler(
-    IRiskContext riskContext, 
+    IRiskContext riskContext,
     ITransferRepository transferRepository,
     IAccountRepository accountRepository) : ICommandHandler<CreateTransferCommand, Result>
 {
@@ -17,14 +17,16 @@ public sealed class CreateTransferCommandHandler(
     {
         var senderAccount = await accountRepository.GetByIbanAsync(cmd.Iban, ct);
         var receiverAccount = await accountRepository.GetByIbanAsync(cmd.ToIban, ct);
-        
-        if(receiverAccount is null) return Result.Fail(new NotFoundError("Receiver account does not exist.")); 
-        if(senderAccount == null) return Result.Fail(new NotFoundError("Sender account does not exist."));
-        if(cmd.Amount > senderAccount.Balance) return Result.Fail(new ValidationError("No sufficient funds.")); 
-        
-        if(riskContext.Current is null) return Result.Fail(new UnexpectedError("Risk could not be evaluated."));
+
+        if (receiverAccount is null || receiverAccount.IsClosed)
+            return Result.Fail(new NotFoundError("Receiver account does not exist."));
+        if (senderAccount is null || senderAccount.IsClosed)
+            return Result.Fail(new NotFoundError("Sender account does not exist."));
+        if (cmd.Amount > senderAccount.Balance) return Result.Fail(new ValidationError("No sufficient funds."));
+
+        if (riskContext.Current is null) return Result.Fail(new UnexpectedError("Risk could not be evaluated."));
         var context = riskContext.Current;
-        
+
         var transfer = new Transfer
         {
             TransferId = Guid.NewGuid(),
@@ -37,10 +39,10 @@ public sealed class CreateTransferCommandHandler(
             PolicyVersion = context.PolicyVersion,
             CreatedAt = DateTime.UtcNow,
         };
-        
+
         senderAccount.ApplyTransfer(-transfer.Amount, transfer.Currency);
         receiverAccount.ApplyTransfer(transfer.Amount, transfer.Currency);
-        
+
         await accountRepository.UpdateAsync(senderAccount, ct);
         await accountRepository.UpdateAsync(receiverAccount, ct);
         await transferRepository.AddAsync(transfer, ct);

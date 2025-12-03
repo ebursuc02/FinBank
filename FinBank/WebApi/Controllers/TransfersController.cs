@@ -19,6 +19,7 @@ namespace WebApi.Controllers;
 [ApiController]
 public class TransfersController(IMediator mediator) : ControllerBase
 {
+    [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpPost]
     public async Task<IActionResult> CreateTransfer(
         [FromBody] CreateTransferCommand command,
@@ -26,14 +27,12 @@ public class TransfersController(IMediator mediator) : ControllerBase
         [FromRoute] string accountIban,
         CancellationToken ct)
     {
-        if (customerId != command.CustomerId || accountIban != command.Iban)
-            return BadRequest(ModelState);
-
         var result = await mediator.SendCommandAsync<CreateTransferCommand, Result>(command, ct);
 
-        return result.ToErrorResponseOrNull(this) ??Created();
+        return result.ToErrorResponseOrNull(this) ?? Created();
     }
-    
+
+    [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpGet("{transferId:Guid}")]
     public async Task<IActionResult> GetTransfers(
         [FromRoute] Guid customerId,
@@ -42,9 +41,9 @@ public class TransfersController(IMediator mediator) : ControllerBase
         CancellationToken ct)
     {
         var result = await mediator.SendQueryAsync<GetTransferByIdQuery, Result<TransferDto>>(
-            new GetTransferByIdQuery{CustomerId = customerId, Iban = accountIban, TransferId = transferId}, ct);
+            new GetTransferByIdQuery { CustomerId = customerId, Iban = accountIban, TransferId = transferId }, ct);
 
-        return result.ToErrorResponseOrNull(this) ??Ok(result.Value);
+        return result.ToErrorResponseOrNull(this) ?? Ok(result.Value);
     }
     
     [HttpGet]
@@ -55,15 +54,9 @@ public class TransfersController(IMediator mediator) : ControllerBase
         [FromQuery] TransferStatus? status,
         CancellationToken ct)
     {
-        var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ??
-                     User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
-        var role = User.FindFirst(ClaimTypes.Role)?.Value;
-        
         var result = await mediator.SendQueryAsync<GetTransfersByCustomerIdOrStatusQuery, Result<List<TransferDto>>>(
             new GetTransfersByCustomerIdOrStatusQuery(customerId, accountIban, status), ct);
         
         return  result.ToErrorResponseOrNull(this) ?? Ok(result.Value);
     }
-
 }

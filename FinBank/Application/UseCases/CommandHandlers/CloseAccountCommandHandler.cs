@@ -11,10 +11,8 @@ namespace Application.UseCases.CommandHandlers
     {
         public async Task<Result> HandleAsync(CloseAccountCommand command, CancellationToken cancellationToken)
         {
-            var account = await accountRepository.GetByIbanAsync(command.AccountIban, cancellationToken);
-            if (account == null || account.CustomerId != command.CustomerId)
-                return Result.Fail(new NotFoundError("Account not found or does not belong to customer"));
-            if (account.IsClosed)
+            var account = await accountRepository.GetByIbanAsync(command.Iban, cancellationToken);
+            if (account!.IsClosed)
                 return Result.Fail(new ConflictError("Account is already closed"));
 
             account.IsClosed = true;
