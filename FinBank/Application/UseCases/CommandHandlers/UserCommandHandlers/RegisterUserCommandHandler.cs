@@ -1,14 +1,13 @@
-
 using Application.DTOs;
-using Microsoft.AspNetCore.Identity;
 using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Commands.UserCommands;
-using FluentResults;
 using Domain;
+using FluentResults;
 using Mediator.Abstractions;
+using Microsoft.AspNetCore.Identity;
 
-namespace Application.UseCases.CommandHandlers;
+namespace Application.UseCases.CommandHandlers.UserCommandHandlers;
 
 public class RegisterUserCommandHandler(
     IUserRepository repository, IPasswordHasher<string> passwordHasher)
@@ -29,7 +28,7 @@ public class RegisterUserCommandHandler(
             Email = command.Email,
             Role = command.Role,
             Name = command.Name,
-            CreatedAt = command.CreatedAt,
+            CreatedAt = DateTime.UtcNow,
             PhoneNumber = command.PhoneNumber,
             Country = command.Country,
             Birthday = command.Birthday,

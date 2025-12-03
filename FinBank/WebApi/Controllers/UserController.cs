@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using FluentResults;
 using Mediator.Abstractions;
 using Microsoft.AspNetCore.Authorization;
+using WebApi.Authorization;
 using WebApi.FailHandeling;
 
 
@@ -18,19 +19,15 @@ namespace WebApi.Controllers;
 [Route("v1/customers")]
 public class Customer(IMediator mediator, IJwtTokenService jwt) : ControllerBase
 {
+    [Authorize(Policy = AdminPolicies.AdminOnly)]
     [HttpPost("register", Name = "Register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserCommand command, CancellationToken ct)
     {
-        var callerRole = User.FindFirst(ClaimTypes.Role)?.Value;
-        var requestedRole = command.Role;
-        
-        if (requestedRole != UserRole.Customer &&
-            !string.Equals(callerRole, UserRole.Admin, StringComparison.OrdinalIgnoreCase))
+        if (command.Role != UserRole.Customer && command.Role != UserRole.Banker)
         {
-            return Forbid();
+            return BadRequest("Invalid or unsupported role.");
         }
-
-        command.Role = requestedRole;
+        
         var result = await mediator.SendCommandAsync<RegisterUserCommand, Result<UserDto>>(command, ct);
         
         var possibleError = result.ToErrorResponseOrNull(this);

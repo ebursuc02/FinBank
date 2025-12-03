@@ -50,7 +50,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorizationBuilder()
-    .AddOwnerOfUserPolicy(AuthorizationPolicies.OwnerOfUserPolicy, "customerId");
+    .AddOwnerOfUserPolicy(AuthorizationPolicies.OwnerOfUserPolicy, "customerId")
+    .AddAdminPolicy(AdminPolicies.AdminOnly);
 
 builder.Services.AddAuthorization();
 builder.Services.AddHttpClient();
