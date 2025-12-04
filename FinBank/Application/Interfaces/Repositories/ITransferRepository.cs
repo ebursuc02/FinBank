@@ -13,4 +13,5 @@ public interface ITransferRepository
     Task<Result> AcceptTransferAsync(Guid transferId, CancellationToken ct);
     Task<Result> DenyTransferAsync(Guid transferId, string? reason, CancellationToken ct);
     Task<List<Transfer>> GetTransfersByCustomerIdOrStatusAndIbanAsync(Guid? queryCustomerId,string iban, TransferStatus? queryStatus, CancellationToken cancellationToken);
+    Task MarkCompleted(Transfer transfer, CancellationToken ct);
 }

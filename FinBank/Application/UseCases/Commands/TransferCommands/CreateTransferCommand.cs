@@ -4,7 +4,7 @@ using Mediator.Abstractions;
 
 namespace Application.UseCases.Commands.TransferCommands;
 
-public sealed class CreateTransferCommand : ICommand<Result>, IAuthorizable, IAccountClosedCheckable, IIdempotencyCheckable
+public class CreateTransferCommand : ICommand<Result<Guid>>, IAuthorizable, IAccountClosedCheckable, IIdempotencyCheckable
 {
     public required Guid CustomerId { get; init; }
     public required string Iban { get; init; }

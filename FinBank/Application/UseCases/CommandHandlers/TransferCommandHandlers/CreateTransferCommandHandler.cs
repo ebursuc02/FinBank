@@ -1,10 +1,9 @@
-﻿using FluentResults;
+﻿using Application.DTOs;
+using FluentResults;
 using Application.Interfaces.Repositories;
-using Application.Interfaces.Utils;
-using Application.UseCases.Commands;
 using Application.UseCases.Commands.TransferCommands;
+using AutoMapper;
 using Domain;
-using Domain.Enums;
 using Domain.Kyc;
 using Mediator.Abstractions;
 
@@ -13,10 +12,9 @@ namespace Application.UseCases.CommandHandlers.TransferCommandHandlers;
 public sealed class CreateTransferCommandHandler(
     IRiskContext riskContext, 
     IRiskPolicyEvaluator evaluator,
-    ITransferRepository transferRepository,
-    IBalanceUpdateService balanceUpdateService) : ICommandHandler<CreateTransferCommand, Result>
+    ITransferRepository transferRepository) : ICommandHandler<CreateTransferCommand, Result<Guid>>
 {
-    public async Task<Result> HandleAsync(CreateTransferCommand cmd, CancellationToken ct)
+    public async Task<Result<Guid>> HandleAsync(CreateTransferCommand cmd, CancellationToken ct)
     {
         var kycDecisionContext = evaluator.Evaluate(riskContext.Current, out var reason);
         
@@ -32,15 +30,8 @@ public sealed class CreateTransferCommandHandler(
             PolicyVersion = cmd.PolicyVersion ?? "v1",
             CreatedAt = DateTime.UtcNow,
         };
-
-        if (transfer.Status == TransferStatus.Pending)
-        {
-            var balanceUpdateResult = await balanceUpdateService.UpdateBalance(transfer, ct);
-            if (!balanceUpdateResult.IsSuccess) return balanceUpdateResult;
-            transfer.Status = TransferStatus.Completed;
-        }
- 
+        
         await transferRepository.AddAsync(transfer, ct);
-        return Result.Ok();
+        return transfer.TransferId;
     }
 }

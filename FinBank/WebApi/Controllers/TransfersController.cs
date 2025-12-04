@@ -1,9 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Application.DTOs;
-using Application.UseCases.Commands;
+﻿using Application.DTOs;
 using Application.UseCases.Commands.TransferCommands;
-using Application.UseCases.Queries;
 using Application.UseCases.Queries.TransferQueries;
 using Domain.Enums;
 using FluentResults;
@@ -27,10 +23,38 @@ public class TransfersController(IMediator mediator) : ControllerBase
         [FromRoute] string accountIban,
         CancellationToken ct)
     {
-        var result = await mediator.SendCommandAsync<CreateTransferCommand, Result>(command, ct);
+        var draftResult = await mediator
+            .SendCommandAsync<CreateTransferCommand, Result<Guid>>(command, ct);
+        
+        if (draftResult.IsFailed)
+            return draftResult.ToErrorResponseOrNull(this) ?? Created();
 
-        return result.ToErrorResponseOrNull(this) ?? Created();
+        var transferId = draftResult.Value;
+
+        var finalResult = await CompleteOrDenyTransferAsync(transferId, ct);
+
+        return finalResult.ToErrorResponseOrNull(this) ?? Created();
     }
+
+    private async Task<Result> CompleteOrDenyTransferAsync(Guid transferId, CancellationToken ct)
+    {
+        var completeResult = await mediator
+            .SendCommandAsync<CompleteTransferCommand, Result>(
+                new CompleteTransferCommand { TransferId = transferId }, ct);
+
+        if (completeResult.IsSuccess)
+            return completeResult;
+
+        var denyCommand = new DenyTransferCommand(
+            transferId,
+            string.Join("; ", completeResult.Errors.Select(e => e.Message)));
+
+        var denyResult = await mediator
+            .SendCommandAsync<DenyTransferCommand, Result>(denyCommand, ct);
+
+        return denyResult;
+    }
+
 
     [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpGet("{transferId:Guid}")]

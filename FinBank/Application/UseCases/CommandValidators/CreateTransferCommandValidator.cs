@@ -1,5 +1,4 @@
-﻿using Application.UseCases.Commands;
-using Application.UseCases.Commands.TransferCommands;
+﻿using Application.UseCases.Commands.TransferCommands;
 using FluentValidation;
 
 namespace Application.UseCases.CommandValidators;
