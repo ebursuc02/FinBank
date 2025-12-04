@@ -56,6 +56,9 @@ BEGIN
 
         CONSTRAINT CK_Currency
             CHECK (Currency IN ('RON','USD','EUR')),
+        CONSTRAINT CK_Accounts_Balance_NonNegative
+            CHECK (Balance >= 0),
+
         CONSTRAINT FK_Accounts_Customers
             FOREIGN KEY (CustomerId) REFERENCES dbo.Users(UserId)
             ON DELETE NO ACTION ON UPDATE NO ACTION
