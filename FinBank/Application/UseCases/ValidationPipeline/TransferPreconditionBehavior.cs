@@ -9,7 +9,7 @@ namespace Application.UseCases.ValidationPipeline;
 public sealed class TransferPreconditionBehavior<TReq, TRes>(
     IAccountRepository repo
 ) : IPipelineBehavior<TReq, TRes>
-    where TRes : Result, new()
+    where TRes : ResultBase, new()
 {
     public async Task<TRes> HandleAsync(
         TReq request,

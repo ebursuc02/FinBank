@@ -107,7 +107,7 @@ IF OBJECT_ID('dbo.IdempotencyKeys','U') IS NULL
 BEGIN
     CREATE TABLE dbo.IdempotencyKeys
     (
-        [Key]             NVARCHAR(100)    NOT NULL CONSTRAINT PK_IdempotencyKeys PRIMARY KEY,
+        [Key]             UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_IdempotencyKeys PRIMARY KEY,
         RequestHash       NVARCHAR(200)    NULL,
         ResponseJson      NVARCHAR(MAX)    NULL,
         FirstProcessedAt  DATETIME2(3)     NULL,

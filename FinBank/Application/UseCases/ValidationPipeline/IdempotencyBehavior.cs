@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Application.DTOs;
 using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Utils;
@@ -30,15 +31,13 @@ public class IdempotencyBehavior<TReq, TRes>(
             if (string.IsNullOrWhiteSpace(record.ResponseJson)) return new TRes();
             try
             {
-                var deserialized = JsonSerializer.Deserialize<TRes>(record.ResponseJson);
-                if (deserialized is not null)
-                    return deserialized;
+                var deserialized = JsonSerializer.Deserialize<TransferResultDto>(record.ResponseJson);
+                return (TRes)(ResultBase)Result.Ok(deserialized!.Value);
             }
             catch (Exception ex) when (ex is JsonException or ArgumentNullException or NotSupportedException)
             {
                 return Fail(new UnexpectedError(ex.Message));
             }
-            return new TRes();
         }
         
         var result = await next();
