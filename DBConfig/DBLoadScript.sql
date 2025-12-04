@@ -111,8 +111,6 @@ BEGIN
         RequestHash       NVARCHAR(200)    NULL,
         ResponseJson      NVARCHAR(MAX)    NULL,
         FirstProcessedAt  DATETIME2(3)     NULL,
-            FOREIGN KEY (TransferId) REFERENCES dbo.Transfers(TransferId)
-            ON DELETE NO ACTION ON UPDATE NO ACTION
     );
     CREATE UNIQUE INDEX UX_Idem_RequestHash ON dbo.IdempotencyKeys(RequestHash) WHERE RequestHash IS NOT NULL;
 END;
