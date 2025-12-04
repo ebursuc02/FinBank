@@ -111,7 +111,6 @@ BEGIN
         RequestHash       NVARCHAR(200)    NULL,
         ResponseJson      NVARCHAR(MAX)    NULL,
         FirstProcessedAt  DATETIME2(3)     NULL,
-        CONSTRAINT FK_Idem_Transfer
             FOREIGN KEY (TransferId) REFERENCES dbo.Transfers(TransferId)
             ON DELETE NO ACTION ON UPDATE NO ACTION
     );
