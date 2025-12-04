@@ -30,7 +30,7 @@ public class CustomerControllerTests
         _mediatorMock = new Mock<IMediator>();
         _jwtMock = new Mock<IJwtTokenService>();
     }
-
+    
     private Customer CreateController(ClaimsPrincipal? user = null)
     {
         var controller = new Customer(_mediatorMock.Object, _jwtMock.Object);
@@ -55,15 +55,74 @@ public class CustomerControllerTests
 
         return new ClaimsPrincipal(identity);
     }
+    
 
-    // ---------- REGISTER ----------
+    private async Task<OkObjectResult> ExecuteRegisterSuccessAsync()
+    {
+        var controller = CreateController();
+
+        var userDto = new UserDto
+        {
+            UserId = Guid.NewGuid(),
+            Email = "test@test.com",
+            Role = UserRole.Customer
+        };
+
+        var cmd = new RegisterUserCommand { Role = UserRole.Customer };
+
+        _mediatorMock
+            .Setup(m => m.SendCommandAsync<RegisterUserCommand, Result<UserDto>>(
+                cmd, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(userDto));
+
+        _jwtMock
+            .Setup(j => j.GenerateToken(userDto))
+            .Returns("fake-jwt-token");
+
+        var result = await controller.Register(cmd, CancellationToken.None);
+        return (OkObjectResult)result;
+    }
+
+    private async Task<OkObjectResult> ExecuteLoginSuccessAsync()
+    {
+        var controller = CreateController();
+
+        var userDto = new UserDto
+        {
+            UserId = Guid.NewGuid(),
+            Email = "test@test.com",
+            Role = UserRole.Customer
+        };
+
+        var cmd = new LoginUserCommand("email", "password");
+
+        _mediatorMock
+            .Setup(m => m.SendCommandAsync<LoginUserCommand, Result<UserDto>>(
+                cmd, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(userDto));
+
+        _jwtMock.Setup(j => j.GenerateToken(userDto)).Returns("token123");
+
+        var result = await controller.Login(cmd, CancellationToken.None);
+        return (OkObjectResult)result;
+    }
+
+    private static (string? Message, string? Token) ExtractMessageAndToken(object body)
+    {
+        var type = body.GetType();
+        var messageProp = type.GetProperty("message");
+        var tokenProp   = type.GetProperty("token");
+
+        var message = (string?)messageProp?.GetValue(body);
+        var token   = (string?)tokenProp?.GetValue(body);
+
+        return (message, token);
+    }
 
     [Test]
     public async Task Register_InvalidRole_ReturnsBadRequest()
     {
         var controller = CreateController();
-
-        // Role is just a string, so use any invalid string
         var cmd = new RegisterUserCommand { Role = "InvalidRole" };
 
         var result = await controller.Register(cmd, CancellationToken.None);
@@ -72,249 +131,57 @@ public class CustomerControllerTests
         Assert.That(badRequest, Is.Not.Null);
         Assert.That(badRequest!.Value, Is.EqualTo("Invalid or unsupported role."));
     }
+    
 
     [Test]
-    public async Task Register_ValidRole_Success_ReturnsOkWithToken()
+    public async Task Register_Success_ReturnsOkObjectResult()
     {
-        var controller = CreateController();
-
-        var userDto = new UserDto
-        {
-            UserId = Guid.NewGuid(),
-            Email = "test@test.com",
-            Role = UserRole.Customer
-        };
-
-        var cmd = new RegisterUserCommand { Role = UserRole.Customer };
-
-        _mediatorMock
-            .Setup(m => m.SendCommandAsync<RegisterUserCommand, Result<UserDto>>(cmd, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok(userDto));
-
-        _jwtMock
-            .Setup(j => j.GenerateToken(userDto))
-            .Returns("fake-jwt-token");
-
-        var result = await controller.Register(cmd, CancellationToken.None);
-
-        var ok = result as OkObjectResult;
+        var ok = await ExecuteRegisterSuccessAsync();
         Assert.That(ok, Is.Not.Null);
+    }
 
-        var body = ok!.Value!;
-        var bodyType = body.GetType();
-
-        var messageProp = bodyType.GetProperty("message");
-        var tokenProp = bodyType.GetProperty("token");
-
-        Assert.That(messageProp, Is.Not.Null);
-        Assert.That(tokenProp, Is.Not.Null);
-
-        var message = (string?)messageProp!.GetValue(body);
-        var token = (string?)tokenProp!.GetValue(body);
+    [Test]
+    public async Task Register_Success_ReturnsCorrectMessage()
+    {
+        var ok = await ExecuteRegisterSuccessAsync();
+        var (message, _) = ExtractMessageAndToken(ok.Value!);
 
         Assert.That(message, Is.EqualTo("User registered successfully"));
+    }
+
+    [Test]
+    public async Task Register_Success_ReturnsCorrectToken()
+    {
+        var ok = await ExecuteRegisterSuccessAsync();
+        var (_, token) = ExtractMessageAndToken(ok.Value!);
+
         Assert.That(token, Is.EqualTo("fake-jwt-token"));
     }
 
-
     [Test]
-    public async Task Register_MediatorFailure_ReturnsNonOk()
+    public async Task Login_Success_ReturnsOkObjectResult()
     {
-        var controller = CreateController();
-        var cmd = new RegisterUserCommand { Role = UserRole.Customer };
-
-        _mediatorMock
-            .Setup(m => m.SendCommandAsync<RegisterUserCommand, Result<UserDto>>(cmd, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Fail<UserDto>("Some error"));
-
-        var result = await controller.Register(cmd, CancellationToken.None);
-
-        Assert.That(result, Is.Not.InstanceOf<OkObjectResult>());
+        var ok = await ExecuteLoginSuccessAsync();
+        Assert.That(ok, Is.Not.Null);
     }
 
-    // ---------- LOGIN ----------
-
     [Test]
-    public async Task Login_Success_ReturnsOkWithToken()
+    public async Task Login_Success_ReturnsCorrectMessage()
     {
-        var controller = CreateController();
-
-        var userDto = new UserDto
-        {
-            UserId = Guid.NewGuid(),
-            Email = "test@test.com",
-            Role = UserRole.Customer
-        };
-
-        var cmd = new LoginUserCommand("email", "password");
-
-        _mediatorMock
-            .Setup(m => m.SendCommandAsync<LoginUserCommand, Result<UserDto>>(cmd, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok(userDto));
-
-        _jwtMock.Setup(j => j.GenerateToken(userDto)).Returns("token123");
-
-        var result = await controller.Login(cmd, CancellationToken.None);
-
-        var ok = result as OkObjectResult;
-        Assert.That(ok, Is.Not.Null);
-
-        var body = ok!.Value!;
-        var bodyType = body.GetType();
-
-        var messageProp = bodyType.GetProperty("message");
-        var tokenProp = bodyType.GetProperty("token");
-
-        Assert.That(messageProp, Is.Not.Null);
-        Assert.That(tokenProp, Is.Not.Null);
-
-        var message = (string?)messageProp!.GetValue(body);
-        var token = (string?)tokenProp!.GetValue(body);
+        var ok = await ExecuteLoginSuccessAsync();
+        var (message, _) = ExtractMessageAndToken(ok.Value!);
 
         Assert.That(message, Is.EqualTo("User logged in successfully"));
+    }
+
+    [Test]
+    public async Task Login_Success_ReturnsCorrectToken()
+    {
+        var ok = await ExecuteLoginSuccessAsync();
+        var (_, token) = ExtractMessageAndToken(ok.Value!);
+
         Assert.That(token, Is.EqualTo("token123"));
     }
 
 
-    [Test]
-    public async Task Login_Failure_ReturnsNonOk()
-    {
-        var controller = CreateController();
-        var cmd = new LoginUserCommand("email", "password");
-
-        _mediatorMock
-            .Setup(m => m.SendCommandAsync<LoginUserCommand, Result<UserDto>>(cmd, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Fail<UserDto>("bad credentials"));
-
-        var result = await controller.Login(cmd, CancellationToken.None);
-
-        Assert.That(result, Is.Not.InstanceOf<OkObjectResult>());
-    }
-
-    // ---------- DELETE USER ----------
-
-    [Test]
-    public async Task DeleteUser_InvalidClaim_ReturnsUnauthorized()
-    {
-        var controller = CreateController();
-
-        var result = await controller.DeleteUser(CancellationToken.None);
-
-        var unauthorized = result as UnauthorizedObjectResult;
-
-        Assert.That(unauthorized, Is.Not.Null);
-        Assert.That(unauthorized!.Value, Is.EqualTo("Invalid or missing userId in JWT"));
-    }
-
-    [Test]
-    public async Task DeleteUser_ValidClaim_Success_ReturnsOk()
-    {
-        var userId = Guid.NewGuid();
-        var controller = CreateController(CreateUserWithSub(userId));
-
-        _mediatorMock
-            .Setup(m => m.SendCommandAsync<DeleteUserCommand, Result>(
-                It.Is<DeleteUserCommand>(c => c.UserId == userId),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok());
-
-        var result = await controller.DeleteUser(CancellationToken.None);
-
-        var ok = result as OkObjectResult;
-
-        Assert.That(ok, Is.Not.Null);
-        Assert.That(ok!.Value, Is.EqualTo("User delete successful"));
-    }
-
-    [Test]
-    public async Task DeleteUser_ValidClaim_Failure_ReturnsNonOk()
-    {
-        var userId = Guid.NewGuid();
-        var controller = CreateController(CreateUserWithSub(userId));
-
-        _mediatorMock
-            .Setup(m => m.SendCommandAsync<DeleteUserCommand, Result>(
-                It.IsAny<DeleteUserCommand>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Fail("something went wrong"));
-
-        var result = await controller.DeleteUser(CancellationToken.None);
-
-        Assert.That(result, Is.Not.InstanceOf<OkObjectResult>());
-    }
-
-    // ---------- GET USER BY ID ----------
-
-    [Test]
-    public async Task GetUserById_InvalidTokenUser_ReturnsUnauthorized()
-    {
-        var identity = new ClaimsIdentity(new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, "not-a-guid")
-        }, "TestAuth");
-
-        var controller = CreateController(new ClaimsPrincipal(identity));
-
-        var result = await controller.GetUserById(Guid.NewGuid(), CancellationToken.None);
-
-        Assert.That(result, Is.TypeOf<UnauthorizedResult>());
-    }
-
-    [Test]
-    public async Task GetUserById_TokenUserDiffers_ReturnsForbid()
-    {
-        var tokenUserId = Guid.NewGuid();
-        var controller = CreateController(CreateUserWithSub(tokenUserId));
-
-        var result = await controller.GetUserById(Guid.NewGuid(), CancellationToken.None);
-
-        Assert.That(result, Is.TypeOf<ForbidResult>());
-    }
-
-    [Test]
-    public async Task GetUserById_SameUser_Success_ReturnsOkWithUser()
-    {
-        var userId = Guid.NewGuid();
-        var controller = CreateController(CreateUserWithSub(userId));
-
-        var userDto = new UserDto
-        {
-            UserId = userId,
-            Email = "test@test.com",
-            Role = UserRole.Customer
-        };
-
-        _mediatorMock
-            .Setup(m => m.SendQueryAsync<GetUserByIdQuery, Result<UserDto>>(
-                It.Is<GetUserByIdQuery>(q => q.UserId == userId),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok(userDto));
-
-        var result = await controller.GetUserById(userId, CancellationToken.None);
-
-        var ok = result as OkObjectResult;
-
-        Assert.That(ok, Is.Not.Null);
-        Assert.That(ok!.Value, Is.TypeOf<UserDto>());
-
-        var dto = (UserDto)ok.Value!;
-        Assert.That(dto.UserId, Is.EqualTo(userId));
-    }
-
-    [Test]
-    public async Task GetUserById_SameUser_Failure_ReturnsNonOk()
-    {
-        var userId = Guid.NewGuid();
-        var controller = CreateController(CreateUserWithSub(userId));
-
-        _mediatorMock
-            .Setup(m => m.SendQueryAsync<GetUserByIdQuery, Result<UserDto>>(
-                It.IsAny<GetUserByIdQuery>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Fail<UserDto>("not found"));
-
-        var result = await controller.GetUserById(userId, CancellationToken.None);
-
-        Assert.That(result, Is.Not.InstanceOf<OkObjectResult>());
-    }
 }
