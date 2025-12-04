@@ -2,7 +2,7 @@
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.UseCases.Commands;
+namespace Application.UseCases.Commands.TransferCommands;
 
 public sealed class CreateTransferCommand : ICommand<Result>, IAuthorizable, IAccountClosedCheckable
 {

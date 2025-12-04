@@ -13,6 +13,7 @@ public class UserConfig : IEntityTypeConfiguration<User>
 
         b.Property(x => x.Email).IsRequired();
         b.Property(x => x.Password).IsRequired();
+        b.Property(x => x.Cnp).HasConversion<string>().HasMaxLength(13).IsRequired();
         b.Property(x => x.UserId).IsRequired();
         b.Property(x => x.Role).IsRequired().HasMaxLength(50);
         b.Property(x => x.CreatedAt).IsRequired();

@@ -1,6 +1,7 @@
 using Application.DTOs;
 using Application.UseCases.Commands.UserCommands;
 using Application.UseCases.CommandHandlers;
+using Application.UseCases.CommandHandlers.UserCommandHandlers;
 using Application.UseCases.Queries;
 using Application.UseCases.Queries.CustomerQueries;
 using Application.UseCases.QueryHandlers;

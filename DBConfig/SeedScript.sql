@@ -19,12 +19,12 @@ DECLARE @custBob   UNIQUEIDENTIFIER = NEWID();
 DECLARE @custCarol UNIQUEIDENTIFIER = NEWID();
 DECLARE @empReviewer UNIQUEIDENTIFIER = NEWID();
 
-INSERT INTO dbo.Users (UserId, Email, Password, Role, CreatedAt, Name, PhoneNumber, Country, Birthday, Address)
+INSERT INTO dbo.Users (UserId, Email, Password, Role, Cnp, CreatedAt, Name, PhoneNumber, Country, Birthday, Address)
 VALUES
-(@custAlice, N'alice@finbank.test',  N'hash_pwd_alice',  N'Customer', SYSUTCDATETIME(), N'Alice Martin',  N'+40-700-000-001', N'RO', '1990-03-05', N'Str. Lalelelor 10, București'),
-(@custBob,   N'bob@finbank.test',    N'hash_pwd_bob',    N'Customer', SYSUTCDATETIME(), N'Bob Ionescu',   N'+40-700-000-002', N'RO', '1987-11-21', N'Str. Mărului 5, Cluj-Napoca'),
-(@custCarol, N'carol@finbank.test',  N'hash_pwd_carol',  N'Customer', SYSUTCDATETIME(), N'Carol Pop',     N'+40-700-000-003', N'RO', '1993-06-14', N'Timișoara, Bd. Revoluției 1'),
-(@empReviewer, N'reviewer@finbank.test', N'hash_pwd_reviewer', N'Employee', SYSUTCDATETIME(), N'Risk Reviewer', N'+40-700-000-004', N'RO', NULL, N'București HQ');
+(@custAlice, N'alice@finbank.test',  N'hash_pwd_alice',  N'Customer', '1760226055524', SYSUTCDATETIME(), N'Alice Martin',  N'+40-700-000-001', N'RO', '1990-03-05', N'Str. Lalelelor 10, București'),
+(@custBob,   N'bob@finbank.test',    N'hash_pwd_bob',    N'Customer', '1991013418016', SYSUTCDATETIME(), N'Bob Ionescu',   N'+40-700-000-002', N'RO', '1987-11-21', N'Str. Mărului 5, Cluj-Napoca'),
+(@custCarol, N'carol@finbank.test',  N'hash_pwd_carol',  N'Customer', '1740506414234', SYSUTCDATETIME(), N'Carol Pop',     N'+40-700-000-003', N'RO', '1993-06-14', N'Timișoara, Bd. Revoluției 1'),
+(@empReviewer, N'reviewer@finbank.test', N'hash_pwd_reviewer', N'Employee', '1890820410547', SYSUTCDATETIME(), N'Risk Reviewer', N'+40-700-000-004', N'RO', NULL, N'București HQ');
 
 -- Accounts
 DECLARE @aliceEur NVARCHAR(34) = N'RO71BANK000000000000000001';
@@ -59,11 +59,11 @@ USE KYC;
 
 DELETE FROM dbo.CustomerRisk;
 
-INSERT INTO dbo.CustomerRisk (CustomerId, RiskStatus, UpdatedAt)
+INSERT INTO dbo.CustomerRisk (Cnp, RiskStatus, UpdatedAt)
 VALUES
-(@custAlice, 'Low',     SYSUTCDATETIME()),
-(@custBob,   'Medium',  SYSUTCDATETIME()),
-(@custCarol, 'High',    SYSUTCDATETIME());
+('1760226055524', 'Low',     SYSUTCDATETIME()),
+('1991013418016',   'Medium',  SYSUTCDATETIME()),
+('1740506414234', 'High',    SYSUTCDATETIME());
 
 PRINT 'Seeding completed successfully.';
 GO

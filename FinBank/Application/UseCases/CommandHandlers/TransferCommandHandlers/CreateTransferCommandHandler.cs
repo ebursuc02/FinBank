@@ -3,6 +3,7 @@ using FluentResults;
 using Application.Interfaces.Kyc;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Commands;
+using Application.UseCases.Commands.TransferCommands;
 using Domain;
 using Mediator.Abstractions;
 

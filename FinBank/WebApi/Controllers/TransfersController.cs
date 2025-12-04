@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using Application.DTOs;
 using Application.UseCases.Commands;
+using Application.UseCases.Commands.TransferCommands;
 using Application.UseCases.Queries;
 using Application.UseCases.Queries.TransferQueries;
 using Domain;
@@ -19,7 +20,7 @@ namespace WebApi.Controllers;
 [ApiController]
 public class TransfersController(IMediator mediator) : ControllerBase
 {
-    [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
+    // [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpPost]
     public async Task<IActionResult> CreateTransfer(
         [FromBody] CreateTransferCommand command,
