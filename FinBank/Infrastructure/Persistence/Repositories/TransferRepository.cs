@@ -37,7 +37,7 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
             .ToListAsync(ct);
     }
 
-    public async Task<Result> AcceptTransferAsync(Guid transferId, CancellationToken ct)
+    public async Task<Result> AcceptTransferAsync(Guid transferId, Guid reviewerId, CancellationToken ct)
     {
         var transfer = await db.Transfers
             .FirstOrDefaultAsync(x => x.TransferId == transferId, ct);
@@ -53,12 +53,13 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
         }
         
         transfer.Status = TransferStatus.Completed;
+        transfer.ReviewedBy = reviewerId;
         transfer.CompletedAt = DateTime.UtcNow;
         
         return Result.Ok();
     }
     
-    public async Task<Result> DenyTransferAsync(Guid transferId, string? reason, CancellationToken ct)
+    public async Task<Result> DenyTransferAsync(Guid transferId, Guid reviewerId, string? reason, CancellationToken ct)
     {
         var transfer = await db.Transfers
             .FirstOrDefaultAsync(x => x.TransferId == transferId, ct);
@@ -71,7 +72,8 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
                 $"Only transfers with status '{TransferStatus.Pending}' can be denied."));
 
         transfer.Status = TransferStatus.Rejected;
-        transfer.Reason = reason;                     
+        transfer.Reason = reason;                  
+        transfer.ReviewedBy = reviewerId;
         transfer.CompletedAt = DateTime.UtcNow;
         
         return Result.Ok();

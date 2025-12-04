@@ -31,8 +31,15 @@ public class EmployeeTransfersController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> AcceptTransaction(
         Guid transferId, CancellationToken ct)
     {
+        var bankerId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (bankerId is null)
+        {
+            return BadRequest();
+        }
+        
+        var reviewerId = Guid.Parse(bankerId);
         var result = await mediator.SendCommandAsync<AcceptTransferCommand, Result>(
-            new AcceptTransferCommand(transferId), ct);
+            new AcceptTransferCommand(transferId, reviewerId), ct);
 
         var errorResponse = result.ToErrorResponseOrNull(this);
         return errorResponse ?? NoContent();
@@ -42,8 +49,15 @@ public class EmployeeTransfersController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> DenyTransaction(
         Guid transferId, [FromBody] string? reason, CancellationToken ct)
     {
+        var bankerId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (bankerId is null)
+        {
+            return BadRequest();
+        }
+        
+        var reviewerId = Guid.Parse(bankerId);
         var result = await mediator.SendCommandAsync<DenyTransferCommand, Result>(
-            new DenyTransferCommand(transferId, reason), ct);
+            new DenyTransferCommand(transferId, reviewerId, reason), ct);
 
         var errorResponse = result.ToErrorResponseOrNull(this);
         return errorResponse ?? NoContent();
