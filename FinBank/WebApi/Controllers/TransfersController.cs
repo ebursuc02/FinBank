@@ -20,7 +20,7 @@ namespace WebApi.Controllers;
 [ApiController]
 public class TransfersController(IMediator mediator) : ControllerBase
 {
-    // [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
+    [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpPost]
     public async Task<IActionResult> CreateTransfer(
         [FromBody] CreateTransferCommand command,
