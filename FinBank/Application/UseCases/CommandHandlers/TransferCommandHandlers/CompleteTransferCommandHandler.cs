@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Repositories;
+﻿using Application.Errors;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Utils;
 using Application.UseCases.Commands.TransferCommands;
 using Domain.Enums;
@@ -15,7 +16,7 @@ public class CompleteTransferCommandHandler(
     {
         var transfer = await transferRepository.GetAsync(cmd.TransferId, ct);
         
-        if (transfer == null) return Result.Fail("Transfer failed.");
+        if (transfer == null) return Result.Fail(new UnexpectedError("Transfer failed."));
         
         if (transfer.Status != TransferStatus.Pending) return  Result.Ok();
 
