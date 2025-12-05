@@ -3,11 +3,11 @@ using FluentResults;
 
 namespace Application.Services.Utils;
 
-public static class ErrorToResultBaseConvertor
+public static class ErrorToResultBaseConvertor<TRes> where TRes : ResultBase, new()
 {
-    public static ResultBase Fail(BaseApplicationError  error)
+    public static TRes Fail(BaseApplicationError  error)
     {
-        var fail = new Result();
+        var fail = new TRes();
         fail.Reasons.Add(error);
         return fail;
     }

@@ -25,12 +25,12 @@ public sealed class TransferPreconditionBehavior<TReq, TRes>(
 
         if (!ownershipApproved)
         {
-            return (TRes)ErrorToResultBaseConvertor.Fail(new ForbiddenError("Sender account is not owned by the customer."));
+            return ErrorToResultBaseConvertor<TRes>.Fail(new ForbiddenError("Sender account is not owned by the customer."));
         }
 
         if (request is IAccountClosedCheckable && account!.IsClosed)
         {
-            return (TRes)ErrorToResultBaseConvertor.Fail(new NotFoundError("Account is closed"));
+            return ErrorToResultBaseConvertor<TRes>.Fail(new NotFoundError("Account is closed"));
         }
  
         return await next();
