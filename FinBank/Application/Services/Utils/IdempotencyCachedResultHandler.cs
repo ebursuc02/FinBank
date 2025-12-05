@@ -18,13 +18,13 @@ internal static class IdempotencyCachedResultHandler<TRes>
         {
             var dto = JsonSerializer.Deserialize<TransferResultDto>(record.ResponseJson);
             if (dto is null)
-                return ErrorToResultBaseConvertor<TRes>.Fail(new UnexpectedError("Cached response deserialized as null."));
+                return new UnexpectedError("Cached response deserialized as null.").ToResult<TRes>();
 
             return (TRes)(ResultBase)Result.Ok(dto.Value);
         }
         catch (Exception ex) when (ex is JsonException or ArgumentNullException or NotSupportedException)
         {
-            return ErrorToResultBaseConvertor<TRes>.Fail(new UnexpectedError(ex.Message));
+            return new UnexpectedError(ex.Message).ToResult<TRes>();
         }
     }
 }
