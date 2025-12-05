@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Commands;
 using AutoMapper;
@@ -8,17 +9,17 @@ using Mediator.Abstractions;
 namespace Application.UseCases.CommandHandlers;
 
 public class GetRiskStatusCommandHandler(IUserRiskRepository repository, IMapper mapper)
-    : IQueryHandler<GetRiskStatusCommand, IResult<UserRiskDto>>
+    : IQueryHandler<GetRiskStatusCommand, Result<UserRiskDto>>
 {
-    public async Task<IResult<UserRiskDto>> HandleAsync(GetRiskStatusCommand command,
+    public async Task<Result<UserRiskDto>> HandleAsync(GetRiskStatusCommand command,
         CancellationToken cancellationToken)
     {
         try
         {
-            var riskStatus = await repository.GetByCustomerAsync(command.UserId, cancellationToken);
+            var riskStatus = await repository.GetByCustomerByCnpAsync(command.UserCnp, cancellationToken);
 
             if (riskStatus is null)
-                return Result.Fail<UserRiskDto>("User not found.");
+                return Result.Fail<UserRiskDto>(new NotFoundError("User not found."));
 
             var dto = mapper.Map<UserRiskDto>(riskStatus);
             return Result.Ok(dto);

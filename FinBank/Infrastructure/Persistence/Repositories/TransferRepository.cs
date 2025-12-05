@@ -10,19 +10,14 @@ namespace Infrastructure.Persistence.Repositories;
 public class TransferRepository(FinBankDbContext db) : ITransferRepository
 {
     public async Task<Transfer?> GetAsync(Guid transferId, CancellationToken ct)
-        => await db.Transfers.AsNoTracking().FirstOrDefaultAsync(x => x.TransferId == transferId, ct);
+        => await db.Transfers.FirstOrDefaultAsync(x => x.TransferId == transferId, ct);
 
 
     public async Task AddAsync(Transfer transfer, CancellationToken ct)
-    {
-        await db.Transfers.AddAsync(transfer, ct);
-    }
+        => await db.Transfers.AddAsync(transfer, ct);
     
     public Task UpdateAsync(Transfer transfer, CancellationToken ct)
-    {
-        db.ChangeTracker.Clear();
-        return Task.FromResult(db.Transfers.Update(transfer));
-    }
+        => Task.FromResult(db.Transfers.Update(transfer));
 
     public async Task<IReadOnlyList<Transfer>> GetForAccountAsync(string iban, CancellationToken ct)
         => await db.Transfers.AsNoTracking()

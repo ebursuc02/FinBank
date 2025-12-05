@@ -1,4 +1,4 @@
-﻿using Application.UseCases.Commands.TransferCommands;
+using Application.UseCases.Commands.TransferCommands;
 using FluentValidation;
 
 namespace Application.UseCases.CommandValidators;
@@ -8,7 +8,7 @@ public sealed class CreateTransferCommandValidator : AbstractValidator<CreateTra
     public CreateTransferCommandValidator()
     {
         RuleFor(x => x.CustomerId).NotEmpty();
-        RuleFor(x => x.Iban) .NotEmpty();
+        RuleFor(x => x.Iban).NotEmpty();
 
         RuleFor(x => x.ToIban)
             .NotEmpty()

@@ -21,6 +21,7 @@ public class GetUserByIdQueryHandler(
         {
             UserId = user.UserId,
             Email = user.Email,
+            Cnp = user.Cnp,
             Name = user.Name,
             PhoneNumber = user.PhoneNumber,
             Country = user.Country,

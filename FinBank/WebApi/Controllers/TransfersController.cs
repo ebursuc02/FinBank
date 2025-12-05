@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.UseCases.Commands.TransferCommands;
 using Application.UseCases.Queries.TransferQueries;
 using Domain.Enums;
@@ -7,6 +7,7 @@ using Mediator.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Authorization;
+using WebApi.DTOs.Request;
 using WebApi.FailHandeling;
 using WebApi.Utils;
 
@@ -19,13 +20,22 @@ public class TransfersController(IMediator mediator) : ControllerBase
     [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpPost]
     public async Task<IActionResult> CreateTransfer(
-        [FromBody] CreateTransferCommand command,
+        [FromBody] CreateTransferRequestDto request,
         [FromRoute] Guid customerId,
         [FromRoute] string accountIban,
         CancellationToken ct)
     {
+        var createCommand = new CreateTransferCommand { 
+            CustomerId = customerId,
+            Iban = accountIban,
+            ToIban = request.ToIban,
+            Amount = request.Amount,
+            Currency = request.Currency,
+            IdempotencyKey = request.IdempotencyKey,
+            PolicyVersion = request.PolicyVersion };
+        
         var draftResult = await mediator
-            .SendCommandAsync<CreateTransferCommand, Result<Guid>>(command, ct);
+            .SendCommandAsync<CreateTransferCommand, Result<Guid>>(createCommand, ct);
         
         if (draftResult.IsFailed)
             return draftResult.ToErrorResponseOrNull(this) ?? Created();

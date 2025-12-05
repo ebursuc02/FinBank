@@ -10,14 +10,14 @@ using Mediator.Abstractions;
 namespace Application.UseCases.CommandHandlers.TransferCommandHandlers;
 
 public sealed class CreateTransferCommandHandler(
-    IRiskContext riskContext, 
+    IRiskContext riskContext,
     IRiskPolicyEvaluator evaluator,
     ITransferRepository transferRepository) : ICommandHandler<CreateTransferCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> HandleAsync(CreateTransferCommand cmd, CancellationToken ct)
     {
         var kycDecisionContext = evaluator.Evaluate(riskContext.Current, out var reason);
-        
+
         var transfer = new Transfer
         {
             TransferId = Guid.NewGuid(),
@@ -30,7 +30,7 @@ public sealed class CreateTransferCommandHandler(
             PolicyVersion = cmd.PolicyVersion ?? "v1",
             CreatedAt = DateTime.UtcNow,
         };
-        
+
         await transferRepository.AddAsync(transfer, ct);
         return transfer.TransferId;
     }
