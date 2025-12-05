@@ -64,7 +64,7 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
         return Result.Ok();
     }
     
-    public async Task<Result> DenyTransferAsync(Guid transferId, Guid reviewerId, string? reason, CancellationToken ct)
+    public async Task<Result> DenyTransferAsync(Guid transferId, Guid? reviewerId, string? reason, CancellationToken ct)
     {
         var transfer = await db.Transfers
             .FirstOrDefaultAsync(x => x.TransferId == transferId, ct);

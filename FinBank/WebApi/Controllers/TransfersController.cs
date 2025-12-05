@@ -47,13 +47,14 @@ public class TransfersController(IMediator mediator) : ControllerBase
 
         var denyCommand = new DenyTransferCommand(
             transferId,
+            null,
             string.Join("; ", completeResult.Errors.Select(e => e.Message)));
 
         var denyResult = await mediator
             .SendCommandAsync<DenyTransferCommand, Result>(denyCommand, ct);
 
         return denyResult;
-    }
+    }   
 
 
     [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
