@@ -25,6 +25,8 @@ public class IdempotencyBehavior<TReq, TRes>(
         
         var result = await next();
 
+        if (result.IsFailed) return result;
+
         var ik = IdempotencyRecordFactory.Build(
             idempotencyCheckable.IdempotencyKey,
             request,
