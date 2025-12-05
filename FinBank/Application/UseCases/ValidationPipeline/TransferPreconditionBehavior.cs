@@ -1,6 +1,7 @@
 ﻿using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Utils;
+using Application.Services.Utils;
 using FluentResults;
 using Mediator.Abstractions;
 
@@ -24,21 +25,14 @@ public sealed class TransferPreconditionBehavior<TReq, TRes>(
 
         if (!ownershipApproved)
         {
-            return Fail(new ForbiddenError("Sender account is not owned by the customer."));
+            return (TRes)ErrorToResultBaseConvertor.Fail(new ForbiddenError("Sender account is not owned by the customer."));
         }
 
         if (request is IAccountClosedCheckable && account!.IsClosed)
         {
-            return Fail(new NotFoundError("Account is closed"));
+            return (TRes)ErrorToResultBaseConvertor.Fail(new NotFoundError("Account is closed"));
         }
  
         return await next();
-    }
-
-    private static TRes Fail(BaseApplicationError  error)
-    {
-        var fail = new TRes();
-        fail.Reasons.Add(error);
-        return fail;
     }
 }
