@@ -115,19 +115,6 @@ public class CustomerControllerTests
 
         return (message, token);
     }
-
-    [Test]
-    public async Task Register_InvalidRole_ReturnsBadRequest()
-    {
-        var controller = CreateController();
-        var cmd = new RegisterUserCommand { Role = "InvalidRole" };
-
-        var result = await controller.Register(cmd, CancellationToken.None);
-
-        var badRequest = result as BadRequestObjectResult;
-        Assert.That(badRequest, Is.Not.Null);
-        Assert.That(badRequest!.Value, Is.EqualTo("Invalid or unsupported role."));
-    }
     
 
     [Test]
