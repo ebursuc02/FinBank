@@ -4,10 +4,12 @@ using Application.DTOs;
 using Application.Interfaces.Security;
 using Application.UseCases.Commands.UserCommands;
 using Application.UseCases.Queries.CustomerQueries;
+using Domain;
 using Microsoft.AspNetCore.Mvc;
 using FluentResults;
 using Mediator.Abstractions;
 using Microsoft.AspNetCore.Authorization;
+using WebApi.Authorization;
 using WebApi.FailHandeling;
 
 
@@ -17,11 +19,12 @@ namespace WebApi.Controllers;
 [Route("v1/customers")]
 public class Customer(IMediator mediator, IJwtTokenService jwt) : ControllerBase
 {
+    [Authorize(Policy = AdminPolicies.AdminOnly)]
     [HttpPost("register", Name = "Register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserCommand command, CancellationToken ct)
     {
         var result = await mediator.SendCommandAsync<RegisterUserCommand, Result<UserDto>>(command, ct);
-
+        
         var possibleError = result.ToErrorResponseOrNull(this);
         if (possibleError is not null) return possibleError;
 
