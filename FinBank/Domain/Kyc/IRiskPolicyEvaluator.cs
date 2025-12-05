@@ -1,6 +1,6 @@
 ﻿using Domain.Enums;
 
-namespace Application.Interfaces.Kyc;
+namespace Domain.Kyc;
 
 public interface IRiskPolicyEvaluator
 {

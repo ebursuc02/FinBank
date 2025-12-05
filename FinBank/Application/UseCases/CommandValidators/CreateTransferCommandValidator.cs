@@ -1,4 +1,4 @@
-﻿using Application.UseCases.Commands;
+using Application.UseCases.Commands.TransferCommands;
 using FluentValidation;
 
 namespace Application.UseCases.CommandValidators;
@@ -8,7 +8,7 @@ public sealed class CreateTransferCommandValidator : AbstractValidator<CreateTra
     public CreateTransferCommandValidator()
     {
         RuleFor(x => x.CustomerId).NotEmpty();
-        RuleFor(x => x.Iban) .NotEmpty();
+        RuleFor(x => x.Iban).NotEmpty();
 
         RuleFor(x => x.ToIban)
             .NotEmpty()
@@ -24,7 +24,7 @@ public sealed class CreateTransferCommandValidator : AbstractValidator<CreateTra
             .Must(IsUpperAscii).WithMessage("Currency must be ISO-4217 (uppercase).");
 
         RuleFor(x => x.IdempotencyKey)
-            .NotEmpty().MaximumLength(100);
+            .NotEmpty();
     }
 
     private static int DecimalScale(decimal value)

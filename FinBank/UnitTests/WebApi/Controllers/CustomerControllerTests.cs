@@ -1,19 +1,14 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 using Application.DTOs;
 using Application.Interfaces.Security;
 using Application.UseCases.Commands.UserCommands;
-using Application.UseCases.Queries.CustomerQueries;
 using Domain;
 using FluentResults;
 using Mediator.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using NUnit.Framework;
 using WebApi.Controllers;
 
 namespace UnitTests.WebApi.Controllers;
@@ -65,7 +60,8 @@ public class CustomerControllerTests
         {
             UserId = Guid.NewGuid(),
             Email = "test@test.com",
-            Role = UserRole.Customer
+            Role = UserRole.Customer,
+            Cnp = "1234567890123",
         };
 
         var cmd = new RegisterUserCommand { Role = UserRole.Customer };
@@ -91,7 +87,8 @@ public class CustomerControllerTests
         {
             UserId = Guid.NewGuid(),
             Email = "test@test.com",
-            Role = UserRole.Customer
+            Role = UserRole.Customer,
+            Cnp = "123456"
         };
 
         var cmd = new LoginUserCommand("email", "password");
@@ -117,19 +114,6 @@ public class CustomerControllerTests
         var token   = (string?)tokenProp?.GetValue(body);
 
         return (message, token);
-    }
-
-    [Test]
-    public async Task Register_InvalidRole_ReturnsBadRequest()
-    {
-        var controller = CreateController();
-        var cmd = new RegisterUserCommand { Role = "InvalidRole" };
-
-        var result = await controller.Register(cmd, CancellationToken.None);
-
-        var badRequest = result as BadRequestObjectResult;
-        Assert.That(badRequest, Is.Not.Null);
-        Assert.That(badRequest!.Value, Is.EqualTo("Invalid or unsupported role."));
     }
     
 

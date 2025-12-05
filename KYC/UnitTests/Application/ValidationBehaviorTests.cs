@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using Application;
+using FluentResults;
 using FluentValidation;
 using FluentValidation.Results;
 using NSubstitute;
-using NUnit.Framework;
-using Application;
 
 namespace UnitTests.Application;
 
@@ -15,12 +10,12 @@ namespace UnitTests.Application;
 public class ValidationBehaviorTests
 {
     private IValidator<TestCommand> _validator;
-    private ValidationBehavior<TestCommand, string> _behavior;
-    private Func<Task<string>> _next;
+    private ValidationBehavior<TestCommand, Result> _behavior;
+    private Func<Task<Result>> _next;
 
     public class TestCommand
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     public class OtherCommand
@@ -31,22 +26,28 @@ public class ValidationBehaviorTests
     public void SetUp()
     {
         _validator = Substitute.For<IValidator<TestCommand>>();
-        _behavior = new ValidationBehavior<TestCommand, string>(new[] { _validator });
-        _next = Substitute.For<Func<Task<string>>>();
+        _behavior = new ValidationBehavior<TestCommand, Result>(new[] { _validator });
+        _next = Substitute.For<Func<Task<Result>>>();
     }
 
     [Test]
-    public void Should_BlockCommandExecution_AndReturnValidationErrors_ForInvalidCommand()
+    public async Task Should_BlockCommandExecution_AndReturnValidationErrors_ForInvalidCommand()
     {
         // Arrange
         var failures = new List<ValidationFailure> { new("Name", "Name is required") };
         _validator.Validate(Arg.Any<ValidationContext<TestCommand>>()).Returns(new ValidationResult(failures));
+        _next.Invoke().Returns(Result.Ok());
 
-        // Act & Assert
-        var ex = Assert.ThrowsAsync<ValidationException>(async () =>
-            await _behavior.HandleAsync(new TestCommand(), _next, CancellationToken.None));
-        Assert.That(ex.Errors.Any(f => f.ErrorMessage == "Name is required"));
-        _next.DidNotReceive()();
+        // Act
+        var result = await _behavior.HandleAsync(new TestCommand(), _next, CancellationToken.None);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.Errors.Any(e => e.Message.Contains("Name is required")), Is.True);
+            _next.DidNotReceive()();
+        });
     }
 
     [Test]
@@ -54,30 +55,38 @@ public class ValidationBehaviorTests
     {
         // Arrange
         _validator.Validate(Arg.Any<ValidationContext<TestCommand>>()).Returns(new ValidationResult());
-        _next.Invoke().Returns("success");
+        _next.Invoke().Returns(Result.Ok());
 
         // Act
         var result = await _behavior.HandleAsync(new TestCommand(), _next, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.EqualTo("success"));
-        await _next.Received(1)();
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsSuccess, Is.True);
+            _next.Received(1)();
+        });
     }
 
     [Test]
-    public void Should_CallCorrectValidator_ForEachCommandType()
+    public async Task Should_CallCorrectValidator_ForEachCommandType()
     {
         // Arrange
         var validator1 = Substitute.For<IValidator<TestCommand>>();
         var validator2 = Substitute.For<IValidator<OtherCommand>>();
-        var behavior = new ValidationBehavior<TestCommand, string>(new[] { validator1 });
+        var behavior = new ValidationBehavior<TestCommand, Result>(new[] { validator1 });
         validator1.Validate(Arg.Any<ValidationContext<TestCommand>>()).Returns(new ValidationResult());
-        _next.Invoke().Returns("ok");
+        _next.Invoke().Returns(Result.Ok());
 
         // Act
-        Assert.DoesNotThrowAsync(async () =>
-            await behavior.HandleAsync(new TestCommand(), _next, CancellationToken.None));
-        validator1.Received(1).Validate(Arg.Any<ValidationContext<TestCommand>>());
-        validator2.DidNotReceive().Validate(Arg.Any<ValidationContext<OtherCommand>>());
+        var result = await behavior.HandleAsync(new TestCommand(), _next, CancellationToken.None);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsSuccess, Is.True);
+            validator1.Received(1).Validate(Arg.Any<ValidationContext<TestCommand>>());
+            validator2.DidNotReceive().Validate(Arg.Any<ValidationContext<OtherCommand>>());
+        });
     }
 }

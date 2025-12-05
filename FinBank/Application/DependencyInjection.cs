@@ -1,5 +1,7 @@
+using System.Reflection;
 using Application.Mapping;
 using Application.ServiceRegistration;
+using FluentValidation;
 using Mediator.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,7 +20,9 @@ public static class DependencyInjection
             .AddRiskServices()
             .AddUtilityServices();
 
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddAutoMapper(_ => { }, typeof(ApplicationMappingProfile).Assembly);
+
         return services;
     }
 }

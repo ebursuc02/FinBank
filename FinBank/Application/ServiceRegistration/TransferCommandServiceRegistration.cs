@@ -1,10 +1,8 @@
 using Application.DTOs;
-using Application.UseCases.Commands;
 using Application.UseCases.CommandHandlers.TransferCommandHandlers;
 using Application.UseCases.Commands.TransferCommands;
-using Application.UseCases.Queries;
 using Application.UseCases.Queries.TransferQueries;
-using Application.UseCases.QueryHandlers;
+using Application.UseCases.QueryHandlers.TransferQueryHandlers;
 using FluentResults;
 using Mediator.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +14,8 @@ namespace Application.ServiceRegistration
         public static IServiceCollection AddTransferCommands(this IServiceCollection services)
         {
             return services
-                .AddScoped<ICommandHandler<CreateTransferCommand, Result>, CreateTransferCommandHandler>()
+                .AddScoped<ICommandHandler<CreateTransferCommand, Result<Guid>>, CreateTransferCommandHandler>()
+                .AddScoped<ICommandHandler<CompleteTransferCommand, Result>, CompleteTransferCommandHandler>()
                 .AddScoped<ICommandHandler<AcceptTransferCommand, Result>, AcceptTransferCommandHandler>()
                 .AddScoped<ICommandHandler<DenyTransferCommand, Result>, DenyTransferCommandHandler>()
                 .AddScoped<IQueryHandler<GetTransfersQuery, Result<IEnumerable<TransferDto>>>, GetTransfersQueryHandler>()

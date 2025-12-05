@@ -8,7 +8,8 @@ namespace Application.ServiceRegistration
     {
         public static IServiceCollection AddUtilityServices(this IServiceCollection services)
         {
-            return services.AddSingleton<IIbanGenerator, IbanGenerator>();
+            return services.AddSingleton<IIbanGenerator, IbanGenerator>()
+                           .AddScoped<IBalanceUpdateService, BalanceUpdateService>();
         }
     }
 }

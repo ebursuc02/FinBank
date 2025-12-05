@@ -36,14 +36,12 @@ namespace UnitTests.Application.UseCases.QueryHandlers
             // Arrange
             var account = new Domain.Account { IsClosed = false };
             _repository.GetByIbanAsync("iban1", Arg.Any<CancellationToken>()).Returns(account);
-
             _mapper.Map<AccountDto>(account).Returns(new AccountDto
             {
                 Iban = "iban1",
                 Currency = "EUR"
             });
-
-            var query = new GetAccountQuery { AccountIban = "iban1" };
+            var query = new GetAccountQuery { Iban = "iban1" };
 
             // Act
             var result = await _handler.HandleAsync(query, CancellationToken.None);
@@ -58,51 +56,11 @@ namespace UnitTests.Application.UseCases.QueryHandlers
         }
 
         [Test]
-        public async Task HandleAsync_ShouldReturnNotFound_WhenAccountDoesNotExist()
-        {
-            // Arrange
-            _repository.GetByIbanAsync("iban2", Arg.Any<CancellationToken>()).Returns((Account)null);
-            var query = new GetAccountQuery { AccountIban = "iban2" };
-
-            // Act
-            var result = await _handler.HandleAsync(query, CancellationToken.None);
-
-            // Assert
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.IsFailed);
-                Assert.That(result.Errors[0], Is.TypeOf<NotFoundError>());
-                Assert.That(result.Errors[0].Metadata["StatusCode"], Is.EqualTo(HttpStatusCode.NotFound));
-                _repository.Received(1).GetByIbanAsync("iban2", Arg.Any<CancellationToken>());
-            });
-        }
-
-        [Test]
-        public async Task HandleAsync_ShouldReturnNotFound_WhenAccountIsClosed()
-        {
-            // Arrange
-            var account = new Domain.Account { IsClosed = true };
-            _repository.GetByIbanAsync("iban3", Arg.Any<CancellationToken>()).Returns(account);
-            var query = new GetAccountQuery { AccountIban = "iban3" };
-
-            // Act
-            var result = await _handler.HandleAsync(query, CancellationToken.None);
-
-            // Assert
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.IsFailed);
-                Assert.That(result.Errors[0], Is.TypeOf<NotFoundError>());
-                _repository.Received(1).GetByIbanAsync("iban3", Arg.Any<CancellationToken>());
-            });
-        }
-
-        [Test]
         public void HandleAsync_ShouldThrow_WhenRepositoryThrows()
         {
             // Arrange
             _repository.GetByIbanAsync("iban4", Arg.Any<CancellationToken>()).Throws(new Exception("db error"));
-            var query = new GetAccountQuery { AccountIban = "iban4" };
+            var query = new GetAccountQuery { Iban = "iban4" };
 
             // Act & Assert
             Assert.ThrowsAsync<Exception>(async () =>

@@ -3,9 +3,9 @@ using Application.Interfaces.Utils;
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.UseCases.Queries;
+namespace Application.UseCases.Queries.TransferQueries;
 
-public class GetTransferByIdQuery : IQuery<Result<TransferDto>>, IAuthorizable
+public class GetTransferByIdQuery : IQuery<Result<TransferDto>>, IAuthorizable, IAccountClosedCheckable
 {
     public Guid TransferId { get; init; }
     public Guid CustomerId { get; init; }

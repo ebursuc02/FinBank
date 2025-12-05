@@ -1,14 +1,10 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Application.Errors;
 using Application.Interfaces.Repositories;
 using Application.UseCases.CommandHandlers;
 using Application.UseCases.Commands;
 using Domain;
-using FluentResults;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using NUnit.Framework;
 
 namespace UnitTests.Application.UseCases.CommandHandlers
 {
@@ -31,7 +27,7 @@ namespace UnitTests.Application.UseCases.CommandHandlers
             // Arrange
             var customerId = Guid.NewGuid();
             var account = new Account { CustomerId = customerId, IsClosed = false };
-            var command = new CloseAccountCommand { AccountIban = "iban1", CustomerId = customerId };
+            var command = new CloseAccountCommand { Iban = "iban1", CustomerId = customerId };
             _accountRepository.GetByIbanAsync("iban1", Arg.Any<CancellationToken>()).Returns(account);
 
             // Act
@@ -48,33 +44,12 @@ namespace UnitTests.Application.UseCases.CommandHandlers
         }
 
         [Test]
-        public async Task HandleAsync_ShouldReturnNotFound_WhenAccountDoesNotExistOrNotBelongToCustomer()
-        {
-            // Arrange
-            var customerId = Guid.NewGuid();
-            _accountRepository.GetByIbanAsync("iban2", Arg.Any<CancellationToken>()).Returns((Account)null!);
-            var command = new CloseAccountCommand { AccountIban = "iban2", CustomerId = customerId };
-
-            // Act
-            var result = await _handler.HandleAsync(command, CancellationToken.None);
-
-            // Assert
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.IsFailed);
-                Assert.That(result.Errors[0], Is.TypeOf<NotFoundError>());
-                _accountRepository.Received(1).GetByIbanAsync("iban2", Arg.Any<CancellationToken>());
-                _accountRepository.DidNotReceive().UpdateAsync(Arg.Any<Account>(), Arg.Any<CancellationToken>());
-            });
-        }
-
-        [Test]
         public async Task HandleAsync_ShouldReturnConflict_WhenAccountAlreadyClosed()
         {
             // Arrange
             var customerId = Guid.NewGuid();
             var account = new Account { CustomerId = customerId, IsClosed = true };
-            var command = new CloseAccountCommand { AccountIban = "iban3", CustomerId = customerId };
+            var command = new CloseAccountCommand { Iban = "iban3", CustomerId = customerId };
             _accountRepository.GetByIbanAsync("iban3", Arg.Any<CancellationToken>()).Returns(account);
 
             // Act
@@ -95,7 +70,7 @@ namespace UnitTests.Application.UseCases.CommandHandlers
         {
             // Arrange
             var customerId = Guid.NewGuid();
-            var command = new CloseAccountCommand { AccountIban = "iban4", CustomerId = customerId };
+            var command = new CloseAccountCommand { Iban = "iban4", CustomerId = customerId };
             _accountRepository.GetByIbanAsync("iban4", Arg.Any<CancellationToken>()).Throws(new Exception("db error"));
 
             // Act & Assert

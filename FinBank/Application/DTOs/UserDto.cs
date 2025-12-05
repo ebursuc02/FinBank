@@ -3,6 +3,7 @@ namespace Application.DTOs;
 public class UserDto
 {
     public required string Email { get; init; }
+    public required string Cnp { get; init; }
     public required string Role { get; init; }
     public Guid UserId { get; init; }
     public DateTime CreatedAt { get; init; }

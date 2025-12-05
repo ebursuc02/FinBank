@@ -2,15 +2,15 @@
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.UseCases.Commands;
+namespace Application.UseCases.Commands.TransferCommands;
 
-public sealed class CreateTransferCommand : ICommand<Result>, IAuthorizable
+public class CreateTransferCommand : ICommand<Result<Guid>>, IAuthorizable, IAccountClosedCheckable, IIdempotencyCheckable
 {
     public required Guid CustomerId { get; init; }
     public required string Iban { get; init; }
     public required string ToIban { get; init; }
     public required decimal Amount { get; init; }
     public required string Currency { get; init; }
-    public string? IdempotencyKey { get; init; }
+    public Guid IdempotencyKey { get; init; }
     public string? PolicyVersion { get; init; }
 }

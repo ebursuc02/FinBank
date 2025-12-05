@@ -6,7 +6,7 @@ namespace Infrastructure.Persistence.Repositories;
 
 public class IdempotencyRepository(FinBankDbContext db) : IIdempotencyRepository
 {
-    public async Task<IdempotencyKey?> GetAsync(string key, CancellationToken ct)
+    public async Task<IdempotencyKey?> GetAsync(Guid key, CancellationToken ct)
         => await db.IdempotencyKeys.AsNoTracking().FirstOrDefaultAsync(x => x.IdempotencyKeyValue == key, ct);
 
 

@@ -1,10 +1,13 @@
 ﻿using Application.DTOs;
 using Application.UseCases.Commands;
 using AutoMapper;
+using Domain;
 using FluentResults;
 using Mediator.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.DTOs;
+using WebApi.FailHandeling;
 
 namespace WebApi.Controllers;
 
@@ -13,13 +16,13 @@ namespace WebApi.Controllers;
 public class KycController(IMediator mediator, IMapper mapper) : ControllerBase
 {
     [HttpGet]
-    [Route("{userId:Guid}")]
-    public async Task<IActionResult> GetUserKycAsync(Guid userId, CancellationToken cancellationToken)
+    [Route("{userCnp}")]
+    public async Task<IActionResult> GetUserKycAsync(string userCnp, CancellationToken cancellationToken)
     {
-        var command = new GetRiskStatusCommand { UserId = userId };
+        var command = new GetRiskStatusCommand { UserCnp = userCnp };
         var result =
-            await mediator.SendQueryAsync<GetRiskStatusCommand, IResult<UserRiskDto>>(command, cancellationToken);
+            await mediator.SendQueryAsync<GetRiskStatusCommand, Result<UserRiskDto>>(command, cancellationToken);
 
-        return result.IsFailed ? NotFound() : Ok(mapper.Map<UserRiskResponseDto>(result.Value));
+        return result.ToErrorResponseOrNull(this) ?? Ok(mapper.Map<UserRiskResponseDto>(result.Value));
     }
 }
