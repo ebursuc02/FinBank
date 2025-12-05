@@ -32,6 +32,7 @@ CREATE TABLE dbo.Users
     Email         NVARCHAR(100)    NOT NULL CONSTRAINT UN_User_Email UNIQUE,
     Password      NVARCHAR(128)    NOT NULL,
     Role          NVARCHAR(50)     NOT NULL,
+    Cnp           VARCHAR(13)      NOT NULL CONSTRAINT UN_User_Cnp UNIQUE,
     CreatedAt     DATETIME2(3)     NOT NULL CONSTRAINT DF_User_CreatedAt DEFAULT SYSUTCDATETIME(),
     Name          NVARCHAR(200)    NOT NULL,
     PhoneNumber   NVARCHAR(50)     NOT NULL,
@@ -133,7 +134,7 @@ GO
 IF OBJECT_ID('dbo.CustomerRisk','U') IS NULL
 CREATE TABLE dbo.CustomerRisk
 (
-    CustomerId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_CustomerRisk PRIMARY KEY,
+    Cnp VARCHAR(13)     NOT NULL CONSTRAINT PK_CustomerRisk PRIMARY KEY,
     RiskStatus VARCHAR(20)      NOT NULL,  -- Low, Medium, High, Blocked, Unknown
     UpdatedAt  DATETIME2(3)     NOT NULL CONSTRAINT DF_CustomerRisk_UpdatedAt DEFAULT SYSUTCDATETIME(),
 

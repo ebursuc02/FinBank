@@ -5,5 +5,5 @@ namespace Application.Interfaces.Kyc;
 
 public interface IRiskClient
 {
-    Task<Result<RiskStatus>> GetAsync(Guid customerId, CancellationToken ct);
+    Task<Result<RiskStatus>> GetAsync(string customerCnp, CancellationToken ct);
 }

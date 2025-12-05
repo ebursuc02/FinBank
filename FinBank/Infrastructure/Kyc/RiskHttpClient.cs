@@ -10,11 +10,11 @@ namespace Infrastructure.Kyc;
 
 internal sealed class RiskHttpClient(HttpClient http) : IRiskClient
 {
-    public async Task<Result<RiskStatus>> GetAsync(Guid customerId, CancellationToken ct)
+    public async Task<Result<RiskStatus>> GetAsync(string customerCnp, CancellationToken ct)
     {
         try
         {
-            var resp = await http.GetFromJsonAsync<RiskRecordDto>($"/api/v1/kyc/{customerId}", ct);
+            var resp = await http.GetFromJsonAsync<RiskRecordDto>($"/api/v1/kyc/{customerCnp}", ct);
             if (resp == null) return Result.Fail(new NotFoundError("Empty KYC response"));
 
             var state = Enum.TryParse<RiskStatus>(
