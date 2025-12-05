@@ -9,6 +9,7 @@ using Mediator.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.FailHandeling;
+using WebApi.Utils;
 
 namespace WebApi.Controllers;
 
@@ -31,11 +32,20 @@ public class EmployeeTransfersController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> AcceptTransaction(
         Guid transferId, CancellationToken ct)
     {
-        var result = await mediator.SendCommandAsync<AcceptTransferCommand, Result>(
-            new AcceptTransferCommand(transferId), ct);
+        var bankerId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (bankerId is null) return BadRequest();
+        
+        var reviewerId = Guid.Parse(bankerId);
+        
+        var reviewResult = await mediator.SendCommandAsync<AcceptTransferCommand, Result>(
+            new AcceptTransferCommand(transferId, reviewerId), ct);
 
-        var errorResponse = result.ToErrorResponseOrNull(this);
-        return errorResponse ?? NoContent();
+        if (reviewResult.IsFailed)
+            return reviewResult.ToErrorResponseOrNull(this) ?? Accepted();
+
+        var finalResult = await TransferUtils.CompleteOrDenyTransferAsync(transferId, ct);
+
+        return finalResult.ToErrorResponseOrNull(this) ?? Accepted();
     }
     
     [HttpPatch("{transferId:guid}/deny")]

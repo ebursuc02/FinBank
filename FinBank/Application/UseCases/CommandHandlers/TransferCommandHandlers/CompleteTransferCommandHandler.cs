@@ -23,7 +23,9 @@ public class CompleteTransferCommandHandler(
         var balanceUpdateResult = await balanceUpdateService.UpdateBalance(transfer, ct);
 
         transfer.Status = balanceUpdateResult.IsSuccess ? TransferStatus.Completed : TransferStatus.Failed;
-        await transferRepository.MarkCompleted(transfer, ct);
+        transfer.CompletedAt = DateTime.Now;
+        
+        await transferRepository.UpdateAsync(transfer, ct);
         return Result.Ok();
     }
 }
