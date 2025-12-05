@@ -32,14 +32,18 @@ namespace UnitTests.Application.UseCases.CommandHandlers
         public async Task Handle_ShouldReturnUserRiskDto_ForValidCommand()
         {
             // Arrange
-            var userId = Guid.NewGuid();
-            var command = new GetRiskStatusCommand { UserId = userId };
+            var userCnp = "1234567890123";
+            var command = new GetRiskStatusCommand { UserCnp = userCnp };
             var customerRisk = new CustomerRisk
-                { CustomerId = userId, RiskStatus = Domain.Enums.RiskStatus.Low, UpdatedAt = DateTime.UtcNow };
+            {
+                Cnp = userCnp,
+                RiskStatus = Domain.Enums.RiskStatus.Low,
+                UpdatedAt = DateTime.UtcNow
+            };
             var userRiskDto = new UserRiskDto
-                { CustomerId = userId, RiskStatus = RiskStatusDto.Low, UpdatedAt = DateTime.UtcNow };
+                { Cnp = userCnp, RiskStatus = RiskStatusDto.Low, UpdatedAt = DateTime.UtcNow };
 
-            _userRiskRepository.GetByCustomerAsync(userId, Arg.Any<CancellationToken>()).Returns(customerRisk);
+            _userRiskRepository.GetByCustomerByCnpAsync(userCnp, Arg.Any<CancellationToken>()).Returns(customerRisk);
             _mapper.Map<UserRiskDto>(customerRisk).Returns(userRiskDto);
 
             // Act
@@ -57,9 +61,9 @@ namespace UnitTests.Application.UseCases.CommandHandlers
         public async Task Handle_ShouldReturnErrorResult_WhenCustomerNotFound()
         {
             // Arrange
-            var userId = Guid.NewGuid();
-            var command = new GetRiskStatusCommand { UserId = userId };
-            _userRiskRepository.GetByCustomerAsync(userId, Arg.Any<CancellationToken>())
+            var userCnp = "1234567890123";
+            var command = new GetRiskStatusCommand { UserCnp = userCnp };
+            _userRiskRepository.GetByCustomerByCnpAsync(userCnp, Arg.Any<CancellationToken>())
                 .ReturnsNull();
 
             // Act
@@ -77,21 +81,25 @@ namespace UnitTests.Application.UseCases.CommandHandlers
         public async Task Handle_ShouldCallRepositoryAndMapper()
         {
             // Arrange
-            var userId = Guid.NewGuid();
-            var command = new GetRiskStatusCommand { UserId = userId };
+            var userCnp = "1234567890123";
+            var command = new GetRiskStatusCommand { UserCnp = userCnp };
             var customerRisk = new CustomerRisk
-                { CustomerId = userId, RiskStatus = Domain.Enums.RiskStatus.High, UpdatedAt = DateTime.UtcNow };
+            {
+                Cnp = userCnp,
+                RiskStatus = Domain.Enums.RiskStatus.High,
+                UpdatedAt = DateTime.UtcNow
+            };
             var userRiskDto = new UserRiskDto
-                { CustomerId = userId, RiskStatus = RiskStatusDto.High, UpdatedAt = DateTime.UtcNow };
+                { Cnp = userCnp, RiskStatus = RiskStatusDto.High, UpdatedAt = DateTime.UtcNow };
 
-            _userRiskRepository.GetByCustomerAsync(userId, Arg.Any<CancellationToken>()).Returns(customerRisk);
+            _userRiskRepository.GetByCustomerByCnpAsync(userCnp, Arg.Any<CancellationToken>()).Returns(customerRisk);
             _mapper.Map<UserRiskDto>(customerRisk).Returns(userRiskDto);
 
             // Act
             await _handler.HandleAsync(command, CancellationToken.None);
 
             // Assert
-            await _userRiskRepository.Received(1).GetByCustomerAsync(userId, Arg.Any<CancellationToken>());
+            await _userRiskRepository.Received(1).GetByCustomerByCnpAsync(userCnp, Arg.Any<CancellationToken>());
             _mapper.Received(1).Map<UserRiskDto>(customerRisk);
         }
 
@@ -99,10 +107,10 @@ namespace UnitTests.Application.UseCases.CommandHandlers
         public async Task Handle_ShouldReturnFailureResult_OnException()
         {
             // Arrange
-            var userId = Guid.NewGuid();
-            var command = new GetRiskStatusCommand { UserId = userId };
-            _userRiskRepository.GetByCustomerAsync(userId, Arg.Any<CancellationToken>())!
-                .Returns<Task<CustomerRisk>>(x => throw new Exception("DB error"));
+            var userCnp = "1234567890123";
+            var command = new GetRiskStatusCommand { UserCnp = userCnp };
+            _userRiskRepository.GetByCustomerByCnpAsync(userCnp, Arg.Any<CancellationToken>())!
+                .Returns<Task<CustomerRisk>>(_ => throw new Exception("DB error"));
 
             // Act
             var result = await _handler.HandleAsync(command, CancellationToken.None);
