@@ -21,9 +21,6 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
             .NotEmpty().WithMessage("Role is required.")
             .Must(role => role == UserRole.Customer || role == UserRole.Banker)
             .WithMessage("Invalid or unsupported role. Allowed roles: Customer, Banker.");
-            
-            .WithMessage(
-                "Password must be at least 8 characters long and include uppercase, lowercase letters, and digits.");
 
         RuleFor(x => x.Cnp).NotEmpty().WithMessage("UserCnp is required");
         RuleFor(x => x.Cnp).Length(13).WithMessage("Cnp must have 13 digits");
