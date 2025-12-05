@@ -1,11 +1,11 @@
 ﻿using Application.DTOs;
 using Application.Interfaces.Repositories;
-using Application.UseCases.Queries;
+using Application.UseCases.Queries.TransferQueries;
 using AutoMapper;
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.UseCases.QueryHandlers;
+namespace Application.UseCases.QueryHandlers.TransferQueryHandlers;
 
 public class GetTransfersQueryHandler(
     ITransferRepository transferRepository,
@@ -21,7 +21,6 @@ public class GetTransfersQueryHandler(
             ct);
 
         var transferList = transfers.ToList();
-
         var dtoList = transferList.Select(mapper.Map<TransferDto>);
 
         return Result.Ok(dtoList);

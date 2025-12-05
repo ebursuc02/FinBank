@@ -4,9 +4,9 @@ using Mediator.Abstractions;
 
 namespace Application.UseCases.Commands;
 
-public class GetRiskStatusCommand : IQuery<IResult<UserRiskDto>>
+public class GetRiskStatusCommand : IQuery<Result<UserRiskDto>>
 {
-    public required Guid UserId { get; init; }
+    public required string UserCnp { get; init; }
 
     public GetRiskStatusCommand()
     {

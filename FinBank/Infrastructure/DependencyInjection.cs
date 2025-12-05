@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces.Kyc;
+using Domain.Kyc;
 using Infrastructure.Kyc;
 using Infrastructure.ServiceRegistration;
 using Microsoft.Extensions.Configuration;

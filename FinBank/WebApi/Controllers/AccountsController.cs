@@ -53,7 +53,7 @@ public class AccountsController(IMediator mediator, IMapper mapper) : Controller
         CancellationToken ct)
     {
         var result = await mediator.SendQueryAsync<GetAccountQuery, Result<AccountDto>>(
-            new GetAccountQuery { AccountIban = accountIban }, ct);
+            new GetAccountQuery { CustomerId = customerId, Iban = accountIban }, ct);
 
         return result.ToErrorResponseOrNull(this) ?? Ok(mapper.Map<AccountResponseDto>(result.Value));
     }
@@ -66,7 +66,7 @@ public class AccountsController(IMediator mediator, IMapper mapper) : Controller
         [FromRoute] string accountIban,
         CancellationToken ct)
     {
-        var command = new CloseAccountCommand { CustomerId = customerId, AccountIban = accountIban };
+        var command = new CloseAccountCommand { CustomerId = customerId, Iban = accountIban };
         var result = await mediator.SendCommandAsync<CloseAccountCommand, Result>(command, ct);
 
         return result.ToErrorResponseOrNull(this) ?? NoContent();
@@ -80,7 +80,7 @@ public class AccountsController(IMediator mediator, IMapper mapper) : Controller
         [FromRoute] string accountIban,
         CancellationToken ct)
     {
-        var command = new ReOpenAccountCommand { CustomerId = customerId, AccountIban = accountIban };
+        var command = new ReOpenAccountCommand { CustomerId = customerId, Iban = accountIban };
         var result = await mediator.SendCommandAsync<ReOpenAccountCommand, Result>(command, ct);
 
         return result.ToErrorResponseOrNull(this) ?? NoContent();

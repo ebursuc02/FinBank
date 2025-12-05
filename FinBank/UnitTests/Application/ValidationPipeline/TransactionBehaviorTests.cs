@@ -2,7 +2,7 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Interfaces.UnitOfWork;
-using Application.ValidationPipeline;
+using Application.UseCases.ValidationPipeline;
 using FluentResults;
 using Mediator.Abstractions;
 using NSubstitute;
