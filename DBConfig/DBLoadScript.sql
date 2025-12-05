@@ -57,6 +57,9 @@ BEGIN
 
         CONSTRAINT CK_Currency
             CHECK (Currency IN ('RON','USD','EUR')),
+        CONSTRAINT CK_Accounts_Balance_NonNegative
+            CHECK (Balance >= 0),
+
         CONSTRAINT FK_Accounts_Customers
             FOREIGN KEY (CustomerId) REFERENCES dbo.Users(UserId)
             ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -83,7 +86,7 @@ BEGIN
         PolicyVersion  VARCHAR(20)      NULL,
 
         CONSTRAINT CK_Transfers_Status
-            CHECK (Status IN ('Pending','Completed','Rejected','UnderReview')),
+            CHECK (Status IN ('Pending','Completed','Rejected','UnderReview', 'Failed')),
         CONSTRAINT CK_Transfers_FromToDifferent
             CHECK (FromIban <> ToIban),
         CONSTRAINT CK_Currency_Transfers
@@ -91,9 +94,6 @@ BEGIN
 
         CONSTRAINT FK_Transfers_FromAccount
             FOREIGN KEY (FromIban) REFERENCES dbo.Accounts(IBAN)
-            ON DELETE NO ACTION ON UPDATE NO ACTION,
-        CONSTRAINT FK_Transfers_ToAccount
-            FOREIGN KEY (ToIban)   REFERENCES dbo.Accounts(IBAN)
             ON DELETE NO ACTION ON UPDATE NO ACTION,
         CONSTRAINT FK_Transfers_ReviewedBy
             FOREIGN KEY (ReviewedBy)    REFERENCES dbo.Users(UserId)
@@ -111,17 +111,11 @@ IF OBJECT_ID('dbo.IdempotencyKeys','U') IS NULL
 BEGIN
     CREATE TABLE dbo.IdempotencyKeys
     (
-        [Key]             NVARCHAR(100)    NOT NULL CONSTRAINT PK_IdempotencyKeys PRIMARY KEY,
-        TransferId        UNIQUEIDENTIFIER NOT NULL,
+        [Key]             UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_IdempotencyKeys PRIMARY KEY,
         RequestHash       NVARCHAR(200)    NULL,
         ResponseJson      NVARCHAR(MAX)    NULL,
         FirstProcessedAt  DATETIME2(3)     NULL,
-
-        CONSTRAINT FK_Idem_Transfer
-            FOREIGN KEY (TransferId) REFERENCES dbo.Transfers(TransferId)
-            ON DELETE NO ACTION ON UPDATE NO ACTION
     );
-    CREATE INDEX IX_Idem_TransferId ON dbo.IdempotencyKeys(TransferId);
     CREATE UNIQUE INDEX UX_Idem_RequestHash ON dbo.IdempotencyKeys(RequestHash) WHERE RequestHash IS NOT NULL;
 END;
 GO

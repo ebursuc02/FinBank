@@ -1,12 +1,11 @@
 ﻿using Application.DTOs;
-using Application.Errors;
 using Application.Interfaces.Repositories;
-using Application.UseCases.Queries;
+using Application.UseCases.Queries.TransferQueries;
 using AutoMapper;
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.UseCases.QueryHandlers;
+namespace Application.UseCases.QueryHandlers.TransferQueryHandlers;
 
 public class GetTransfersQueryHandler(
     ITransferRepository transferRepository,

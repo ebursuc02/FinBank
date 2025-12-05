@@ -17,7 +17,12 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
     {
         await db.Transfers.AddAsync(transfer, ct);
     }
-
+    
+    public Task UpdateAsync(Transfer transfer, CancellationToken ct)
+    {
+        db.ChangeTracker.Clear();
+        return Task.FromResult(db.Transfers.Update(transfer));
+    }
 
     public async Task<IReadOnlyList<Transfer>> GetForAccountAsync(string iban, CancellationToken ct)
         => await db.Transfers.AsNoTracking()
@@ -46,10 +51,10 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
         {
             return Result.Fail(new NotFoundError($"Transfer {transferId} not found"));    
         }
-        if (transfer.Status != TransferStatus.Pending)
+        if (transfer.Status != TransferStatus.UnderReview)
         {
             return Result.Fail(
-                new ConflictError("Only pending transfers can be accepted"));
+                new ConflictError("Only transfers under review  can be accepted"));
         }
         
         transfer.Status = TransferStatus.Completed;
@@ -66,11 +71,11 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
         if (transfer is null)
             return Result.Fail(new NotFoundError($"Transfer {transferId} not found."));
 
-        if (transfer.Status != TransferStatus.Pending)
+        if (transfer.Status != TransferStatus.Pending && transfer.Status != TransferStatus.UnderReview)
             return Result.Fail(new ConflictError(
-                $"Only transfers with status '{TransferStatus.Pending}' can be denied."));
+                $"Only pending or under review transfers can be denied."));
 
-        transfer.Status = TransferStatus.Rejected;
+        transfer.Status = transfer.Status is TransferStatus.Pending ? TransferStatus.Failed :  TransferStatus.Rejected;
         transfer.Reason = reason;                     
         transfer.CompletedAt = DateTime.UtcNow;
         
@@ -101,7 +106,10 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
             query = query.Where(t => t.FromIban == iban || t.ToIban == iban);
         }
 
-        if (status.HasValue)
+        if (!status.HasValue)
+            return await query
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync(ct);
         {
             var s = status.Value;
             query = query.Where(t => t.Status == s);
@@ -111,5 +119,4 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync(ct);
     }
-
 }

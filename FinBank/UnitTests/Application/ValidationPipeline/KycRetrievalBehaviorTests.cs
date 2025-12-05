@@ -1,11 +1,11 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Application.Interfaces.Kyc;
 using Application.Interfaces.Repositories;
 using Application.UseCases.Commands;
 using Application.UseCases.Commands.TransferCommands;
-using Application.ValidationPipeline;
+using Application.UseCases.ValidationPipeline;
 using Domain.Enums;
+using Domain.Kyc;
+using Domain.Policies;
 using FluentResults;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -14,23 +14,21 @@ using NUnit.Framework;
 namespace UnitTests.Application.ValidationPipeline;
 
 [TestFixture]
-public class RiskEvaluationBehaviorTests
+public class KycRetrievalBehaviorTests
 {
     private IRiskClient _riskClient;
-    private IRiskPolicyEvaluator _evaluator;
     private IRiskContext _riskContext;
     private IUserRepository _userRepository;
-    private RiskEvaluationBehavior<CreateTransferCommand, Result> _behavior;
+    private KycRetrievalBehavior<CreateTransferCommand, Result> _behavior;
     private Func<Task<Result>> _next;
 
     [SetUp]
     public void SetUp()
     {
         _riskClient = Substitute.For<IRiskClient>();
-        _evaluator = Substitute.For<IRiskPolicyEvaluator>();
         _riskContext = Substitute.For<IRiskContext>();
         _userRepository = Substitute.For<IUserRepository>();
-        _behavior = new RiskEvaluationBehavior<CreateTransferCommand, Result>(_riskClient, _evaluator, _userRepository, _riskContext);
+        _behavior = new KycRetrievalBehavior<CreateTransferCommand, Result>(_riskClient, _userRepository, _riskContext);
         _next = Substitute.For<Func<Task<Result>>>();
     }
 
@@ -38,7 +36,7 @@ public class RiskEvaluationBehaviorTests
     public async Task Should_Skip_ForNonCreateTransferCommand()
     {
         // Arrange
-        var behavior = new RiskEvaluationBehavior<object, Result>(_riskClient, _evaluator, _userRepository, _riskContext);
+        var behavior = new KycRetrievalBehavior<object, Result>(_riskClient, _userRepository, _riskContext);
         _next.Invoke().Returns(Result.Ok());
         var request = new object();
 
@@ -49,17 +47,20 @@ public class RiskEvaluationBehaviorTests
         Assert.Multiple(() =>
         {
             Assert.That(result.IsSuccess);
+            _riskClient.DidNotReceiveWithAnyArgs().GetAsync(default, default);
+            _riskContext.DidNotReceive().Current = Arg.Any<RiskStatus>();
             _next.Received(1)();
         });
     }
 
     [Test]
-    public async Task Should_SetRiskContext_ForSuccessfulRiskFetch()
+    public async Task Should_SetRiskContext_ToReturnedRisk_OnSuccessfulFetch()
     {
         // Arrange
         var customerId = Guid.NewGuid();
         var cnp = "1234567890123";
-        var cmd = new CreateTransferCommand {
+        var cmd = new CreateTransferCommand
+        {
             CustomerId = customerId,
             PolicyVersion = "v2",
             Iban = "iban1",
@@ -68,8 +69,9 @@ public class RiskEvaluationBehaviorTests
             Currency = "EUR"
         };
         _userRepository.GetCustomerCnpByIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cnp);
-        _riskClient.GetAsync(cnp, Arg.Any<CancellationToken>()).Returns(Result.Ok(RiskStatus.High));
-        _evaluator.Evaluate(RiskStatus.High, out Arg.Any<string>()!).Returns(x => { x[1] = "reason"; return TransferStatus.Rejected; });
+        _riskClient.GetAsync(cnp, Arg.Any<CancellationToken>())
+            .Returns(Result.Ok(RiskStatus.High));
+
         _next.Invoke().Returns(Result.Ok());
 
         // Act
@@ -81,19 +83,19 @@ public class RiskEvaluationBehaviorTests
             Assert.That(result.IsSuccess);
             _userRepository.Received(1).GetCustomerCnpByIdAsync(customerId, Arg.Any<CancellationToken>());
             _riskClient.Received(1).GetAsync(cnp, Arg.Any<CancellationToken>());
-            _evaluator.Received(1).Evaluate(RiskStatus.High, out Arg.Any<string>());
-            _riskContext.Received(1).Current = Arg.Is<RiskContextData>(d => d.Decision == TransferStatus.Rejected && d.Reason == "reason" && d.PolicyVersion == "v2");
+            _riskContext.Received(1).Current = RiskStatus.High;
             _next.Received(1)();
         });
     }
 
     [Test]
-    public async Task Should_SetMediumRisk_IfRiskFetchFails()
+    public async Task Should_SetRiskContext_ToMedium_WhenRiskFetchFails()
     {
         // Arrange
         var customerId = Guid.NewGuid();
         var cnp = "1234567890123";
-        var cmd = new CreateTransferCommand {
+        var cmd = new CreateTransferCommand
+        {
             CustomerId = customerId,
             PolicyVersion = null,
             Iban = "iban1",
@@ -103,7 +105,6 @@ public class RiskEvaluationBehaviorTests
         };
         _userRepository.GetCustomerCnpByIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cnp);
         _riskClient.GetAsync(cnp, Arg.Any<CancellationToken>()).Returns(Result.Fail("fail"));
-        _evaluator.Evaluate(RiskStatus.Medium, out Arg.Any<string>()).Returns(x => { x[1] = "default"; return TransferStatus.UnderReview; });
         _next.Invoke().Returns(Result.Ok());
 
         // Act
@@ -115,8 +116,7 @@ public class RiskEvaluationBehaviorTests
             Assert.That(result.IsSuccess);
             _userRepository.Received(1).GetCustomerCnpByIdAsync(customerId, Arg.Any<CancellationToken>());
             _riskClient.Received(1).GetAsync(cnp, Arg.Any<CancellationToken>());
-            _evaluator.Received(1).Evaluate(RiskStatus.Medium, out Arg.Any<string>());
-            _riskContext.Received(1).Current = Arg.Is<RiskContextData>(d => d.Decision == TransferStatus.UnderReview && d.Reason == "default" && d.PolicyVersion == "v1");
+            _riskContext.Received(1).Current = RiskStatus.Medium;
             _next.Received(1)();
         });
     }
@@ -126,7 +126,8 @@ public class RiskEvaluationBehaviorTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var cmd = new CreateTransferCommand {
+        var cmd = new CreateTransferCommand
+        {
             CustomerId = customerId,
             PolicyVersion = null,
             Iban = "iban1",
@@ -135,7 +136,6 @@ public class RiskEvaluationBehaviorTests
             Currency = "EUR"
         };
         _userRepository.GetCustomerCnpByIdAsync(customerId, Arg.Any<CancellationToken>()).Returns((string?)null);
-        _evaluator.Evaluate(RiskStatus.Medium, out Arg.Any<string>()).Returns(x => { x[1] = "default"; return TransferStatus.UnderReview; });
         _next.Invoke().Returns(Result.Ok());
 
         // Act
@@ -147,20 +147,21 @@ public class RiskEvaluationBehaviorTests
             Assert.That(result.IsSuccess);
             _userRepository.Received(1).GetCustomerCnpByIdAsync(customerId, Arg.Any<CancellationToken>());
             _riskClient.DidNotReceive().GetAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
-            _evaluator.Received(1).Evaluate(RiskStatus.Medium, out Arg.Any<string>());
-            _riskContext.Received(1).Current = Arg.Is<RiskContextData>(d => d.Decision == TransferStatus.UnderReview && d.Reason == "default" && d.PolicyVersion == "v1");
+            _riskContext.Received(1).Current = RiskStatus.Medium;
             _next.Received(1)();
         });
     }
 
     [Test]
-    public void Should_PropagateExceptions_FromDependencies()
+    public void Should_PropagateExceptions_FromRiskClient()
     {
         // Arrange
         var customerId = Guid.NewGuid();
         var cnp = "1234567890123";
-        var cmd = new CreateTransferCommand {
+        var cmd = new CreateTransferCommand
+        {
             CustomerId = customerId,
+            PolicyVersion = "v1",
             Iban = "iban1",
             ToIban = "iban2",
             Amount = 100,

@@ -1,9 +1,8 @@
-﻿using System.Windows.Input;
-using Domain.Enums;
+﻿using Domain.Enums;
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.UseCases.Commands;
+namespace Application.UseCases.Commands.TransferCommands;
 
 public class AcceptTransferCommand(Guid transferId):ICommand<Result>
 {
