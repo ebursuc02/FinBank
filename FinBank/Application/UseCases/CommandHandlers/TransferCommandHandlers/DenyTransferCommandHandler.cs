@@ -21,9 +21,11 @@ public class DenyTransferCommandHandler(ITransferRepository repository):ICommand
                 $"Only pending or under review transfers can be denied."));
 
         transfer.Status = transfer.Status is TransferStatus.Pending ? TransferStatus.Failed : TransferStatus.Rejected;
-        transfer.Reason = cmd.Reason;                     
+        transfer.Reason = cmd.Reason;
+        transfer.ReviewedBy ??= cmd.ReviewId;
         transfer.CompletedAt = DateTime.UtcNow;
         
+        await repository.UpdateAsync(transfer, ct);
         return Result.Ok();
     }
 }

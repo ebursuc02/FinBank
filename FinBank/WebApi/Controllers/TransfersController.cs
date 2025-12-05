@@ -32,7 +32,7 @@ public class TransfersController(IMediator mediator) : ControllerBase
 
         var transferId = draftResult.Value;
 
-        var finalResult = await TransferUtils.CompleteOrDenyTransferAsync(transferId, ct);
+        var finalResult = await TransferUtils.CompleteOrDenyTransferAsync(mediator, transferId, ct);
 
         return finalResult.ToErrorResponseOrNull(this) ?? Created();
     }

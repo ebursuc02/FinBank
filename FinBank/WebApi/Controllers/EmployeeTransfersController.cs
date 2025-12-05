@@ -43,7 +43,7 @@ public class EmployeeTransfersController(IMediator mediator) : ControllerBase
         if (reviewResult.IsFailed)
             return reviewResult.ToErrorResponseOrNull(this) ?? Accepted();
 
-        var finalResult = await TransferUtils.CompleteOrDenyTransferAsync(transferId, ct);
+        var finalResult = await TransferUtils.CompleteOrDenyTransferAsync(mediator, transferId, ct);
 
         return finalResult.ToErrorResponseOrNull(this) ?? Accepted();
     }
@@ -52,8 +52,13 @@ public class EmployeeTransfersController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> DenyTransaction(
         Guid transferId, [FromBody] string? reason, CancellationToken ct)
     {
+        var bankerId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (bankerId is null) return BadRequest();
+        
+        var reviewerId = Guid.Parse(bankerId);
+        
         var result = await mediator.SendCommandAsync<DenyTransferCommand, Result>(
-            new DenyTransferCommand(transferId, reason), ct);
+            new DenyTransferCommand(transferId, reviewerId, reason), ct);
 
         var errorResponse = result.ToErrorResponseOrNull(this);
         return errorResponse ?? NoContent();

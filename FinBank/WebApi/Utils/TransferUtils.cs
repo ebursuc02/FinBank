@@ -6,11 +6,12 @@ namespace WebApi.Utils;
 
 public static class TransferUtils
 {
-    private static IMediator Mediator { get; }
-
-    public static async Task<Result> CompleteOrDenyTransferAsync(Guid transferId, CancellationToken ct)
+    public static async Task<Result> CompleteOrDenyTransferAsync(
+        IMediator mediator,
+        Guid transferId, 
+        CancellationToken ct)
     {
-        var completeResult = await Mediator
+        var completeResult = await mediator
             .SendCommandAsync<CompleteTransferCommand, Result>(
                 new CompleteTransferCommand { TransferId = transferId }, ct);
 
@@ -18,10 +19,11 @@ public static class TransferUtils
             return completeResult;
 
         var denyCommand = new DenyTransferCommand(
-            transferId,
-            string.Join("; ", completeResult.Errors.Select(e => e.Message)));
+            transferId: transferId,
+            reviewerId: null, // failed transfer use case
+            reason: string.Join("; ", completeResult.Errors.Select(e => e.Message)));
 
-        var denyResult = await Mediator
+        var denyResult = await mediator
             .SendCommandAsync<DenyTransferCommand, Result>(denyCommand, ct);
 
         return denyResult;
