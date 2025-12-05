@@ -10,7 +10,7 @@ public class AcceptTransferCommandHandler(ITransferRepository repository):IComma
 {
     public async Task<Result> HandleAsync(AcceptTransferCommand command, CancellationToken cancellationToken)
     {
-       var result = await repository.AcceptTransferAsync(command.TransferId, cancellationToken);
+       var result = await repository.AcceptTransferAsync(command.TransferId, command.ReviewerId, cancellationToken);
        return result;
     }
 } 
