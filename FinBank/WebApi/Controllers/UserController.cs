@@ -23,11 +23,6 @@ public class Customer(IMediator mediator, IJwtTokenService jwt) : ControllerBase
     [HttpPost("register", Name = "Register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserCommand command, CancellationToken ct)
     {
-        if (command.Role != UserRole.Customer && command.Role != UserRole.Banker)
-        {
-            return BadRequest("Invalid or unsupported role.");
-        }
-        
         var result = await mediator.SendCommandAsync<RegisterUserCommand, Result<UserDto>>(command, ct);
         
         var possibleError = result.ToErrorResponseOrNull(this);
