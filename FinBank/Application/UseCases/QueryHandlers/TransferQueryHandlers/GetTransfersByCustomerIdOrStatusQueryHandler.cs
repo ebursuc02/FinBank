@@ -5,7 +5,7 @@ using Application.UseCases.Queries.TransferQueries;
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.UseCases.CommandHandlers.TransferCommandHandlers;
+namespace Application.UseCases.QueryHandlers.TransferQueryHandlers;
 
 public class GetTransfersByCustomerIdOrStatusQueryHandler(ITransferRepository repository):IQueryHandler<GetTransfersByCustomerIdOrStatusQuery,Result<List<TransferDto>>>
 {

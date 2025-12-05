@@ -1,5 +1,5 @@
-using Application.Services.Policies;
-using Application.Interfaces.Kyc;
+using Domain.Kyc;
+using Domain.Policies;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application.ServiceRegistration

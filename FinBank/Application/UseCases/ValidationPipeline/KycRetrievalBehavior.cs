@@ -1,14 +1,15 @@
 ﻿using Application.Interfaces.Kyc;
 using Application.UseCases.Commands;
+using Application.UseCases.Commands.TransferCommands;
 using Domain.Enums;
+using Domain.Kyc;
 using FluentResults;
 using Mediator.Abstractions;
 
-namespace Application.ValidationPipeline;
+namespace Application.UseCases.ValidationPipeline;
 
-public sealed class RiskEvaluationBehavior<TReq, TRes>(
+public sealed class KycRetrievalBehavior<TReq, TRes>(
     IRiskClient riskClient,
-    IRiskPolicyEvaluator evaluator,
     IRiskContext riskContext) : IPipelineBehavior<TReq, TRes>
     where TRes : ResultBase
 {
@@ -22,10 +23,7 @@ public sealed class RiskEvaluationBehavior<TReq, TRes>(
         var riskResult = await riskClient.GetAsync(cmd.CustomerId, cancellationToken) ;
         var riskStatus = riskResult.IsSuccess ? riskResult.Value : RiskStatus.Medium;
         
-        var decision = evaluator.Evaluate(riskStatus, out var reason);
-        var policyVersion = string.IsNullOrWhiteSpace(cmd.PolicyVersion) ? "v1" : cmd.PolicyVersion;
-        
-        riskContext.Current = new RiskContextData(decision, reason, policyVersion);
+        riskContext.Current = riskStatus;
         
         return await next();
     }

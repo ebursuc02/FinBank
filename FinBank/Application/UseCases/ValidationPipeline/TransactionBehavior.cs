@@ -3,8 +3,9 @@ using Application.Errors;
 using Application.Interfaces.UnitOfWork;
 using FluentResults;
 using Mediator.Abstractions;
+using Application.Services.Utils;
 
-namespace Application.ValidationPipeline;
+namespace Application.UseCases.ValidationPipeline;
 
 public sealed class TransactionBehavior<TReq, TRes>(IUnitOfWork uow)
     : IPipelineBehavior<TReq, TRes>
@@ -40,10 +41,7 @@ public sealed class TransactionBehavior<TReq, TRes>(IUnitOfWork uow)
         }
         catch (DbException exception)
         {
-            await transaction.RollbackAsync(ct);
-            var fail = new TRes();
-            fail.Reasons.Add(new UnexpectedError($"Unexpected error during transaction: {exception.Message}"));
-            return fail;
+            return new UnexpectedError($"Unexpected error during transaction: {exception.Message}").ToResult<TRes>();
         }
     }
 }

@@ -34,12 +34,6 @@ public class TransferConfig : IEntityTypeConfiguration<Transfer>
             .HasForeignKey(x => x.FromIban)
             .HasConstraintName("FK_Transfers_FromAccount")
             .OnDelete(DeleteBehavior.NoAction); 
-        
-        b.HasOne(x => x.ToAccount)
-            .WithMany()
-            .HasForeignKey(x => x.ToIban)
-            .HasConstraintName("FK_Transfers_ToAccount")
-            .OnDelete(DeleteBehavior.NoAction);
 
         b.HasOne(x => x.Reviewer)
             .WithMany()

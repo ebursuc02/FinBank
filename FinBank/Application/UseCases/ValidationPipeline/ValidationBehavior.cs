@@ -3,7 +3,7 @@ using FluentResults;
 using FluentValidation;
 using Mediator.Abstractions;
 
-namespace Application.ValidationPipeline;
+namespace Application.UseCases.ValidationPipeline;
 public class ValidationBehavior<TRequest, TResponse>(
     IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
     where TResponse : ResultBase, new()

@@ -17,7 +17,5 @@ public class Transfer
     public string? PolicyVersion { get; set; }
     
     public Account? FromAccount { get; set; }
-    public Account? ToAccount { get; set; }
     public User? Reviewer { get; set; }
-    public ICollection<IdempotencyKey> IdempotencyKeys { get; set; } = new List<IdempotencyKey>();
 }

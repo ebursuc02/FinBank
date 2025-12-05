@@ -1,32 +1,23 @@
-﻿using Application.Errors;
+﻿using Application.DTOs;
 using FluentResults;
-using Application.Interfaces.Kyc;
 using Application.Interfaces.Repositories;
-using Application.UseCases.Commands;
+using Application.UseCases.Commands.TransferCommands;
+using AutoMapper;
 using Domain;
+using Domain.Kyc;
 using Mediator.Abstractions;
 
 namespace Application.UseCases.CommandHandlers.TransferCommandHandlers;
 
 public sealed class CreateTransferCommandHandler(
-    IRiskContext riskContext,
-    ITransferRepository transferRepository,
-    IAccountRepository accountRepository) : ICommandHandler<CreateTransferCommand, Result>
+    IRiskContext riskContext, 
+    IRiskPolicyEvaluator evaluator,
+    ITransferRepository transferRepository) : ICommandHandler<CreateTransferCommand, Result<Guid>>
 {
-    public async Task<Result> HandleAsync(CreateTransferCommand cmd, CancellationToken ct)
+    public async Task<Result<Guid>> HandleAsync(CreateTransferCommand cmd, CancellationToken ct)
     {
-        var senderAccount = await accountRepository.GetByIbanAsync(cmd.Iban, ct);
-        var receiverAccount = await accountRepository.GetByIbanAsync(cmd.ToIban, ct);
-
-        if (receiverAccount is null || receiverAccount.IsClosed)
-            return Result.Fail(new NotFoundError("Receiver account does not exist."));
-        if (senderAccount is null || senderAccount.IsClosed)
-            return Result.Fail(new NotFoundError("Sender account does not exist."));
-        if (cmd.Amount > senderAccount.Balance) return Result.Fail(new ValidationError("No sufficient funds."));
-
-        if (riskContext.Current is null) return Result.Fail(new UnexpectedError("Risk could not be evaluated."));
-        var context = riskContext.Current;
-
+        var kycDecisionContext = evaluator.Evaluate(riskContext.Current, out var reason);
+        
         var transfer = new Transfer
         {
             TransferId = Guid.NewGuid(),
@@ -34,18 +25,13 @@ public sealed class CreateTransferCommandHandler(
             ToIban = cmd.ToIban,
             Amount = decimal.Round(cmd.Amount, 2, MidpointRounding.ToEven),
             Currency = cmd.Currency,
-            Status = context.Decision,
-            Reason = context.Reason,
-            PolicyVersion = context.PolicyVersion,
+            Status = kycDecisionContext,
+            Reason = reason,
+            PolicyVersion = cmd.PolicyVersion ?? "v1",
             CreatedAt = DateTime.UtcNow,
         };
-
-        senderAccount.ApplyTransfer(-transfer.Amount, transfer.Currency);
-        receiverAccount.ApplyTransfer(transfer.Amount, transfer.Currency);
-
-        await accountRepository.UpdateAsync(senderAccount, ct);
-        await accountRepository.UpdateAsync(receiverAccount, ct);
+        
         await transferRepository.AddAsync(transfer, ct);
-        return Result.Ok();
+        return transfer.TransferId;
     }
 }
