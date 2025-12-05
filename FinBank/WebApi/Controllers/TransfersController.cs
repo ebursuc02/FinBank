@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebApi.Authorization;
 using WebApi.DTOs.Request;
 using WebApi.FailHandeling;
+using WebApi.Utils;
 
 namespace WebApi.Controllers;
 
@@ -41,31 +42,10 @@ public class TransfersController(IMediator mediator) : ControllerBase
 
         var transferId = draftResult.Value;
 
-        var finalResult = await CompleteOrDenyTransferAsync(transferId, ct);
+        var finalResult = await TransferUtils.CompleteOrDenyTransferAsync(mediator, transferId, ct);
 
         return finalResult.ToErrorResponseOrNull(this) ?? Created();
     }
-
-    private async Task<Result> CompleteOrDenyTransferAsync(Guid transferId, CancellationToken ct)
-    {
-        var completeResult = await mediator
-            .SendCommandAsync<CompleteTransferCommand, Result>(
-                new CompleteTransferCommand { TransferId = transferId }, ct);
-
-        if (completeResult.IsSuccess)
-            return completeResult;
-
-        var denyCommand = new DenyTransferCommand(
-            transferId,
-            null,
-            string.Join("; ", completeResult.Errors.Select(e => e.Message)));
-
-        var denyResult = await mediator
-            .SendCommandAsync<DenyTransferCommand, Result>(denyCommand, ct);
-
-        return denyResult;
-    }   
-
 
     [Authorize(Policy = AuthorizationPolicies.OwnerOfUserPolicy)]
     [HttpGet("{transferId:Guid}")]

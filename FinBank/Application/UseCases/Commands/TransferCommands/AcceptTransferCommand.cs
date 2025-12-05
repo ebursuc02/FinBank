@@ -8,5 +8,4 @@ public class AcceptTransferCommand(Guid transferId, Guid reviewerId):ICommand<Re
 {
     public Guid TransferId => transferId;
     public Guid ReviewerId => reviewerId;
-    public TransferStatus Status = TransferStatus.Completed;
 }

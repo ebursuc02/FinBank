@@ -37,48 +37,6 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
             .ToListAsync(ct);
     }
 
-    public async Task<Result> AcceptTransferAsync(Guid transferId, Guid reviewerId, CancellationToken ct)
-    {
-        var transfer = await db.Transfers
-            .FirstOrDefaultAsync(x => x.TransferId == transferId, ct);
-
-        if (transfer is null)
-        {
-            return Result.Fail(new NotFoundError($"Transfer {transferId} not found"));    
-        }
-        if (transfer.Status != TransferStatus.UnderReview)
-        {
-            return Result.Fail(
-                new ConflictError("Only transfers under review  can be accepted"));
-        }
-        
-        transfer.Status = TransferStatus.Completed;
-        transfer.ReviewedBy = reviewerId;
-        transfer.CompletedAt = DateTime.UtcNow;
-        
-        return Result.Ok();
-    }
-    
-    public async Task<Result> DenyTransferAsync(Guid transferId, Guid? reviewerId, string? reason, CancellationToken ct)
-    {
-        var transfer = await db.Transfers
-            .FirstOrDefaultAsync(x => x.TransferId == transferId, ct);
-
-        if (transfer is null)
-            return Result.Fail(new NotFoundError($"Transfer {transferId} not found."));
-
-        if (transfer.Status != TransferStatus.Pending && transfer.Status != TransferStatus.UnderReview)
-            return Result.Fail(new ConflictError(
-                $"Only pending or under review transfers can be denied."));
-
-        transfer.Reason = reason;                  
-        transfer.ReviewedBy = reviewerId;
-        transfer.Status = transfer.Status is TransferStatus.Pending ? TransferStatus.Failed :  TransferStatus.Rejected;                     
-        transfer.CompletedAt = DateTime.UtcNow;
-        
-        return Result.Ok();
-    }
-
     public async Task<List<Transfer>> GetTransfersByCustomerIdOrStatusAndIbanAsync(
         Guid? customerId,
         string iban,
