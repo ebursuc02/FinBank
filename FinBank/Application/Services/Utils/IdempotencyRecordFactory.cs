@@ -11,7 +11,7 @@ internal static class IdempotencyRecordFactory
         TRes result)
     {
         var requestJson = JsonSerializer.Serialize(request);
-        var requestHash = IdempotencyHashing.ComputeSha256Base64(requestJson);
+        var requestHash = Hasher.ComputeSha256Base64(requestJson);
 
         var responseJson = JsonSerializer.Serialize(result);
 

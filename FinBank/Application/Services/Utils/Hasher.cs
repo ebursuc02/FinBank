@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Application.Services.Utils;
 
-internal static class IdempotencyHashing
+internal static class Hasher
 {
     public static string ComputeSha256Base64(string input)
     {

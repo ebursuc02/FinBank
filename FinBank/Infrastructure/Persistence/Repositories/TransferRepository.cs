@@ -17,7 +17,7 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
     {
         await db.Transfers.AddAsync(transfer, ct);
     }
-
+    
     public Task UpdateAsync(Transfer transfer, CancellationToken ct)
     {
         db.ChangeTracker.Clear();
