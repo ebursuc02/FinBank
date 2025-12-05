@@ -22,7 +22,7 @@ public class DenyTransferCommandHandler(ITransferRepository repository):ICommand
 
         transfer.Status = transfer.Status is TransferStatus.Pending ? TransferStatus.Failed : TransferStatus.Rejected;
         transfer.Reason = cmd.Reason;
-        transfer.ReviewedBy ??= cmd.ReviewId;
+        transfer.ReviewedBy ??= cmd.ReviewerId;
         transfer.CompletedAt = DateTime.UtcNow;
         
         await repository.UpdateAsync(transfer, ct);
