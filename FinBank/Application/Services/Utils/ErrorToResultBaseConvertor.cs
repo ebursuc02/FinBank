@@ -3,9 +3,9 @@ using FluentResults;
 
 namespace Application.Services.Utils;
 
-public static class ErrorToResultBaseConvertor<TRes> where TRes : ResultBase, new()
+public static class ErrorToResultBaseConvertor
 {
-    public static TRes Fail(BaseApplicationError  error)
+    public static TRes ToResult<TRes>(this BaseApplicationError error) where TRes : ResultBase, new()
     {
         var fail = new TRes();
         fail.Reasons.Add(error);
