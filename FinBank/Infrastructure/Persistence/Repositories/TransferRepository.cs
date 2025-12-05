@@ -17,7 +17,12 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
     {
         await db.Transfers.AddAsync(transfer, ct);
     }
-
+    
+    public Task UpdateAsync(Transfer transfer, CancellationToken ct)
+    {
+        db.ChangeTracker.Clear();
+        return Task.FromResult(db.Transfers.Update(transfer));
+    }
 
     public async Task<IReadOnlyList<Transfer>> GetForAccountAsync(string iban, CancellationToken ct)
         => await db.Transfers.AsNoTracking()
@@ -113,12 +118,5 @@ public class TransferRepository(FinBankDbContext db) : ITransferRepository
         return await query
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync(ct);
-    }
-
-    public Task MarkCompleted(Transfer transfer, CancellationToken ct)
-    {
-        db.ChangeTracker.Clear();
-        transfer.CompletedAt =  DateTime.UtcNow;
-        return Task.FromResult(db.Transfers.Update(transfer));
     }
 }
