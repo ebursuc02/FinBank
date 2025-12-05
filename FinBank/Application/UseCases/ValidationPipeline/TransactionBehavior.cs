@@ -41,6 +41,7 @@ public sealed class TransactionBehavior<TReq, TRes>(IUnitOfWork uow)
         }
         catch (DbException exception)
         {
+            await transaction.RollbackAsync(ct);
             return new UnexpectedError($"Unexpected error during transaction: {exception.Message}").ToResult<TRes>();
         }
     }
